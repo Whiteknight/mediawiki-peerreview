@@ -1,5 +1,14 @@
 == About ==
 
+The PageReviews extension is a MediaWiki extension under development which
+allows class groups to use a Wiki as a more traditional learning environment.
+Each page can be assigned an optional owner, or a list of owners. This
+corresponds to how studens are given particular assignments in a traditional
+classroom. Students edit their pages and are able to leave reviews on the pages
+of others.
+
+Each review consists of a numerical ranking and a short text comment.
+
 == Installation ==
 
 === Prerequisites ===
