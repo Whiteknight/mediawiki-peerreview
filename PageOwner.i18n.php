@@ -3,6 +3,6 @@ $messages = array();
 
 /* *** English *** */
 $messages['en'] = array(
-	'pageowner' => 'My Extension',
-	'pageowner-desc' => "Extension's description",
+	'pageowner' => 'Page Ownership',
+	'pageowner-desc' => "Set page ownership properties for peer review",
 );

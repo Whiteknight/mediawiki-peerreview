@@ -32,14 +32,14 @@ class PageReviews {
          if($wgRequest->getVal('reviewable-hidden') == 'go') {
             $response = "";
             $extraClass = "";
-            
+
             //Review and Comment must be set
             //User must be logged in
             if(!$wgRequest->getVal('reviewable-review')
                || !$wgRequest->getVal('reviewable-comment')
                || !is_numeric($wgRequest->getVal('reviewable-review'))
                || $wgUser->getID() == 0) {
-               
+
                $extraClass = "warning";
                if($wgUser->getID() == 0) {
                   $response = <<<EOT
@@ -54,7 +54,7 @@ EOT;
    <p>Remember, you must choose a score <strong>and</strong> write a comment!</p>
 EOT;
                }
-               
+
             //Else, POST seems valid
             } else {
                $inReview = $wgRequest->getVal('reviewable-review');
@@ -88,7 +88,7 @@ EOT;
 EOT;
                }
             }
-            
+
             $finalResponse = <<<EOT
 <div id="reviewable-response" class="wittie-box {$extraClass}">
    <div style="padding-top:1em; float:right;">[<a href="#" id="reviewable-response-close">Close</a>]</div>
@@ -102,10 +102,10 @@ EOT;
 EOT;
             $out->addHTML($finalResponse);
          }
-         
+
          //Display the form
          $url = $wgRequest->getFullRequestURL();
-         
+
          //Get <option> list from review_score table
          $dbr = wfGetDB(DB_SLAVE);
          $res = $dbr->select('review_score', array('id', 'display_as'));
@@ -114,11 +114,11 @@ EOT;
             $optionString .= "<option value=\"{$row->id}\">{$row->display_as}</option>";
          }
          $dbr->freeResult($res);
-         
+
          //Get number of reviews for this page
          $res = $dbr->select('review', 'id', 'page_id=' . $wgArticle->getID());
          $numRows = $dbr->numRows($res);
-         
+
          //'heredoc' string for HTML insertion
          $buttonHtml = <<<EOT
 <div class="reviewable-form-box wittie-box info">
