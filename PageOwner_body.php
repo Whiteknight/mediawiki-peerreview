@@ -7,25 +7,33 @@ class PageOwner extends SpecialPage {
 
     function handleAddUser($pagename, $pageid, $username, $userid) {
         global $wgOut;
+        if ($userid == 0) {
+            $wgOut->addHTML("User $username doesn't exist");
+            return;
+        }
         $toinsert = array(
             'page_id' => $pageid,
             'user_id' => $userid
         );
         $dbw = wfGetDB(DB_MASTER);
         $dbw->insert('page_owner', $toinsert);
-        $wgOut->addHTML("Added $username as an owner for $pagename<br>");
+        $wgOut->addHTML("Added $username as an owner for $pagename");
         return;
     }
 
     function handleRemoveUser($pagename, $pageid, $username, $userid) {
         global $wgOut;
+        if ($userid == 0) {
+            $wgOut->addHTML("User $username doesn't exist");
+            return;
+        }
         $todelete = array(
             'page_id' => $pageid,
             'user_id' => $userid
         );
         $dbw = wfGetDB(DB_MASTER);
         $dbw->delete('page_owner', $todelete);
-        $wgOut->addHTML("Removed $username as an owner for $pagename<br>");
+        $wgOut->addHTML("Removed $username as an owner for $pagename");
     }
 
     function handlePostBack() {
@@ -42,7 +50,7 @@ class PageOwner extends SpecialPage {
             $userid = User::idFromName($username);
             $this->handleRemoveUser($pagename, $pageid, $username, $userid);
         }
-        $wgOut->addHTML("<a href=\"$wgScriptPath/Special:PageOwner/$pagename\">Back</a>");
+        $wgOut->addHTML("<br><a href=\"$wgScriptPath/Special:PageOwner/$pagename\">Back</a>");
     }
 
     function execute( $par ) {
@@ -59,6 +67,10 @@ class PageOwner extends SpecialPage {
         }
 
         $pageid = Title::newFromText($par)->getArticleId();
+        if ($pageid == 0) {
+            $wgOut->addHTML("<p>Error: Page '$par' does not exist</p>");
+            return;
+        }
         $dbr = wfGetDB(DB_SLAVE);
         $selectquery =<<<EOSQL
 SELECT user.user_name
@@ -74,38 +86,44 @@ EOSQL;
         }
         while($row = $dbr->fetchObject($given)) {
             $username = $row->user_name;
-            $currentowners .= "<p>$username &mdash " .
-                "[<a href=\"javascript: removeuser('$username')\">Remove</a>]" .
-                "</p>";
+            $currentowners .= <<<EOT
+<p>
+    [<a href="javascript: removeuser('$username')" style="font-size: 80%;">Remove</a>]
+    &mdash; <b>$username</b>
+</p>
+EOT;
         }
 
         $this->setHeaders();
         $html = <<<EOT
-<h2 style="clear: both;">Ownership of Page <a href="{$wgScriptPath}/{$par}"<{$par}</a></h2>
-<div style="width: 45%; border: 1px solid #000000; background-color: #F8F8F8; padding: 5px; float: left;">
-    <h3>Current Page Owners</h3>
-    <script type="text/javascript">
+<script type="text/javascript">
     function removeuser(user) {
         username = document.getElementById("par_username");
         username.value = user;
         document.removepeople.submit();
     }
-    </script>
-    <form name="removepeople" action="{$wgScriptPath}/index.php?title=Special:PageOwner" method="POST">
-        {$currentowners}
-        <input type="hidden" name="par_pagename" value="{$par}"/>
-        <input type="hidden" name="par_username" id="par_username" value=""/>
-    </form>
-</div>
-<div style="width: 45%; border: 1px solid #000000; background-color: #F8F8F8; padding: 5px; float: right;">
-    <h3>Add New Owners</h3>
-    <form action="{$wgScriptPath}/index.php?title=Special:PageOwner" method="POST">
-        New owner: <input type="textbox" name="newowner"/>
-        <input type="hidden" name="par_pagename" value="{$par}"/>
-        <input type="submit" name="submit" value="Add"/>
-    </form>
-
-</div>
+</script>
+<h2 style="clear: both;">Ownership of Page <a href="{$wgScriptPath}/{$par}"<{$par}</a></h2>
+<table style="width: 100%;" cellspacing="5" cellpadding="5">
+    <tr>
+        <td style="width: 50%; border: 1px solid #000000; background-color: #F8F8F8;" valign="top">
+            <h3>Current Page Owners</h3>
+            <form name="removepeople" action="{$wgScriptPath}/index.php?title=Special:PageOwner" method="POST">
+                {$currentowners}
+                <input type="hidden" name="par_pagename" value="{$par}"/>
+                <input type="hidden" name="par_username" id="par_username" value=""/>
+            </form>
+        </td>
+        <td style="width: 50%; border: 1px solid #000000; background-color: #F8F8F8;" valign="top">
+            <h3>Add New Owners</h3>
+            <form action="{$wgScriptPath}/index.php?title=Special:PageOwner" method="POST">
+                New owner: <input type="textbox" name="newowner"/>
+                <input type="hidden" name="par_pagename" value="{$par}"/>
+                <input type="submit" name="submit" value="Add"/>
+            </form>
+        </td>
+    </tr>
+</table>
 EOT;
         $wgOut->addHTML($html);
         return true;
