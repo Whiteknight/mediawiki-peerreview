@@ -37,10 +37,11 @@ EOT;
         } else {
             $userName = $wgUser->getName();
         }
-
-        // Get the reviews
         $dbr = wfGetDB(DB_SLAVE);
+
         // Reviews this user has given
+        // TODO: If the review was made to a page on which "I" am an owner,
+        //       signal it somehow.
         $selectquery =<<<EOSQL
 SELECT
     review_score.display_as, page.page_namespace, page.page_title, review.*
@@ -48,7 +49,7 @@ SELECT
         review_score INNER JOIN (
             review INNER JOIN page ON review.page_id = page.page_id
         ) ON review.review_score_id = review_score.id
-WHERE user_id='{$userId}';
+    WHERE user_id = '{$userId}';
 EOSQL;
         $given = $dbr->query($selectquery);
         $givenReviews = "";
