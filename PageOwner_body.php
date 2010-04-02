@@ -89,7 +89,9 @@ EOSQL;
             $currentowners .= <<<EOT
 <p>
     [<a href="javascript: removeuser('$username')" style="font-size: 80%;">Remove</a>]
-    &mdash; <b>$username</b>
+    &mdash;
+    <a href="$wgScriptPath?title=User:$username">$username</a>
+    (<a href="$wgScriptPath?title=User_talk:$username">Talk</a>)
 </p>
 EOT;
         }
