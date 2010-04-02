@@ -61,11 +61,11 @@ EOSQL;
             $pagelink = $namespace . $row->page_title;
 
             $givenReviews .= <<<EOT
-<div class="myReviews-review">
-    <p><b>Page:</b> <a href="{$wgScriptPath}/{$pagelink}">{$pagelink}</a></p>
-    <p><b>Score:</b> {$row->display_as}</p>
-    <p><b>Comment:</b> {$row->comment}</p>
-</div>
+            <div class="myReviews-review">
+                <p><b>Page:</b> <a href="{$wgScriptPath}/{$pagelink}">{$pagelink}</a></p>
+                <p><b>Score:</b> {$row->display_as}</p>
+                <p><b>Comment:</b> {$row->comment}</p>
+            </div>
 EOT;
         }
 
@@ -93,25 +93,28 @@ EOSQL;
             $namespace = $this->getNamespaceNameFromId($namespaceId);
             $pagelink = $namespace . $row->page_title;
             $takenReviews .= <<<EOT
-<div class="myReviews-review">
-    <p><b>Page</b>: <a href="{$wgScriptPath}/{$pagelink}">{$pagelink}</a></p>
-    <p><b>Score</b>: {$row->display_as}</p>
-    <p><b>Comment</b>: {$row->comment}</p>
-</div>
+            <div class="myReviews-review">
+                <p><b>Page</b>: <a href="{$wgScriptPath}/{$pagelink}">{$pagelink}</a></p>
+                <p><b>Score</b>: {$row->display_as}</p>
+                <p><b>Comment</b>: {$row->comment}</p>
+            </div>
 EOT;
         }
 
         $html = <<<EOT
 <h2 style="clear:both;">{$userName}'s Reviews</h2>
-<div style="float:left;width:45%;border:1px solid #000040;background:#F0F0FF;padding:1em;">
-    <h3>Reviews given to me</h3>
-    {$takenReviews}
-</div>
-<div style="float:right;width:45%;border:1px solid #004000;background:#F0FFF0;padding:1em;">
-    <h3>Reviews I've given</h3>
-    {$givenReviews}
-</div>
-<div style="clear:both;">&nbsp;</div>
+<table style="width: 100%;" cellspacing="5" cellpadding="5">
+    <tr>
+        <td style="width: 50%; border: 1px solid #000040; background: #F0F0FF;" valign="top">
+            <h3>Reviews given to me</h3>
+            {$takenReviews}
+        </td>
+        <td style="width: 50%; border: 1px solid #004000; background: #F0FFF0;" valign="top">
+            <h3>Reviews I've given</h3>
+            {$givenReviews}
+        </td>
+    </tr>
+</table>
 EOT;
         $wgOut->addHTML($html);
         return true;
