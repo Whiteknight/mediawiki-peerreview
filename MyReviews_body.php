@@ -59,12 +59,11 @@ EOSQL;
             $namespaceId = $row->page_namespace;
             $namespace = $this->getNamespaceNameFromId($namespaceId);
             $pagelink = $namespace . $row->page_title;
-
             $givenReviews .= <<<EOT
             <div class="myReviews-review">
-                <p><b>Page:</b> <a href="{$wgScriptPath}/{$pagelink}">{$pagelink}</a></p>
-                <p><b>Score:</b> {$row->display_as}</p>
-                <p><b>Comment:</b> {$row->comment}</p>
+                <p><b>Page</b>: <a href="{$wgScriptPath}/{$pagelink}">{$pagelink}</a></p>
+                <p><b>Score</b>: {$row->display_as}</p>
+                <p><b>Comment</b>: {$row->comment}</p>
             </div>
 EOT;
         }
@@ -74,13 +73,16 @@ EOT;
 SELECT
     page.page_namespace, page.page_title, review_score.display_as, review.*
     FROM (
-        review INNER JOIN review_score ON review.review_score_id = review_score.id
-    ) INNER JOIN page ON review.page_id = page.page_id
-    WHERE review.page_id IN
-    (
-        SELECT page_id FROM page_owner WHERE user_id='{$userId}'
+        review INNER JOIN review_score
+            ON review.review_score_id = review_score.id
+    ) INNER JOIN page
+        ON review.page_id = page.page_id
+    WHERE review.page_id IN (
+        SELECT page_id FROM page_owner WHERE user_id = '{$userId}'
         UNION
-        SELECT rev_page FROM revision WHERE rev_parent_id=0 AND rev_user='{$userId}' GROUP BY rev_page
+        SELECT rev_page FROM revision
+            WHERE rev_parent_id = 0 AND rev_user = '{$userId}'
+            GROUP BY rev_page
     );
 EOSQL;
         $taken = $dbr->query($selectquery);
@@ -89,16 +91,18 @@ EOSQL;
             $takenReviews = "<p>No reviews</p>";
         }
         while($row = $dbr->fetchObject($taken)) {
-            $namespaceId = $row->page_namespace;
-            $namespace = $this->getNamespaceNameFromId($namespaceId);
-            $pagelink = $namespace . $row->page_title;
-            $takenReviews .= <<<EOT
+            if ($row->user_id != $userId) {
+                $namespaceId = $row->page_namespace;
+                $namespace = $this->getNamespaceNameFromId($namespaceId);
+                $pagelink = $namespace . $row->page_title;
+                $takenReviews .= <<<EOT
             <div class="myReviews-review">
                 <p><b>Page</b>: <a href="{$wgScriptPath}/{$pagelink}">{$pagelink}</a></p>
                 <p><b>Score</b>: {$row->display_as}</p>
                 <p><b>Comment</b>: {$row->comment}</p>
             </div>
 EOT;
+            }
         }
 
         $html = <<<EOT
