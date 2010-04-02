@@ -105,7 +105,6 @@ EOT;
         document.removepeople.submit();
     }
 </script>
-<h2 style="clear: both;">Ownership of Page <a href="{$wgScriptPath}/{$par}"<{$par}</a></h2>
 <table style="width: 100%;" cellspacing="5" cellpadding="5">
     <tr>
         <td style="width: 50%; border: 1px solid #000000; background-color: #F8F8F8;" valign="top">
@@ -117,6 +116,8 @@ EOT;
             </form>
         </td>
         <td style="width: 50%; border: 1px solid #000000; background-color: #F8F8F8;" valign="top">
+            <h3><a href="{$wgScriptPath}/{$par}">{$par}</a></h3>
+            <hr>
             <h3>Add New Owners</h3>
             <form action="{$wgScriptPath}/index.php?title=Special:PageOwner" method="POST">
                 New owner: <input type="textbox" name="newowner"/>
