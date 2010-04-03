@@ -20,3 +20,4 @@ CREATE TABLE `review` (
   `comment` mediumtext NOT NULL,
   PRIMARY KEY  (`id`)
 ) ENGINE=MyISAM AUTO_INCREMENT=15 DEFAULT CHARSET=latin1;
+
