@@ -1,7 +1,6 @@
 <?php
 /**
  * A more locked-down approach to the Ratings extension.
- * Requirements: Ratings extension, PageAttributes extension
  * @author Jason Grafinger
  */
 
@@ -165,7 +164,7 @@ EOT;
 /*<![CDATA[*/
 //Toggle visibility of 'reviewable' box
 $('a#reviewable-toggle').click(function() {
-    newText = "hide";
+    newText = "Hide";
     if($('a#reviewable-toggle').html() == newText) {
         newText = "Post Review";
     }
