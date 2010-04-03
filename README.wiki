@@ -31,7 +31,9 @@ will not run properly without jQuery.
 
 4) Copy all contents of the repository, except the .sql files, to the
    /extension/PeerReview directory in your wiki installation.
-5) Add this line to your LocalSettings.php:
+5) Add a link to /extension/PeerReview/PeerReview.js to your wiki. There are a
+   number of ways to do this.
+6) Add this line to your LocalSettings.php:
 
     include_once( "$IP/extensions/PeerReview/PeerReview.php" );
 
