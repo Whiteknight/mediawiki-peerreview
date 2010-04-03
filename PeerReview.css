@@ -1,29 +1,35 @@
 
 .info {
-        border: 1px solid #806000;
-        background: #FFE8D0;
+    border: 1px solid #806000;
+    background: #FFE8D0;
 }
 .warning {
-        border: 1px solid #800000;
-        background: #FFE8E8;
+    border: 1px solid #800000;
+    background: #FFE8E8;
 }
 .success {
-        border: 1px solid #008000;
-        background: #F0FFE8;
+    border: 1px solid #008000;
+    background: #F0FFE8;
 }
-.wittie-box {
-        margin: 0em 0em 1em 0em;
-        padding: 1em;
-        width: 20em;
+
+.review-box {
+    margin: 0px 0px 5px 0px;
+    padding: 5px;
+    width: 20em;
 }
+
 .reviewable-form-box {
-        float: right;
+    float: right;
 }
 
 #reviewable-main {
-        display: none;
+    display: none;
 }
 
 .myReviews-review {
-        border-bottom: 1px solid black;
+    border-bottom: 1px solid black;
+}
+
+#reviewable-comment {
+    width: 20em;
 }

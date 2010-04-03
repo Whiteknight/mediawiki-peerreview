@@ -88,7 +88,7 @@ EOT;
         }
 
         $finalResponse = <<<EOT
-<div id="reviewable-response" class="wittie-box {$extraClass}">
+<div id="reviewable-response" class="review-box {$extraClass}">
     <div style="padding-top:1em; float:right;">[<a href="#" id="reviewable-response-close">Close</a>]</div>
     {$response}
 </div>
@@ -144,24 +144,20 @@ EOT;
         $numRows = $dbr->numRows($res);
 
         $buttonHtml = <<<EOT
-<div class="reviewable-form-box wittie-box info">
-    <h2>Review Page</h2>
-    <p>[<a id="reviewable-toggle" href="#">show</a>]</p>
+<div class="reviewable-form-box review-box info">
+    <span style="float: right;">[<a id="reviewable-toggle" href="#">Post Review</a>]</span>
+    <b>{$numRows}</b> reviews
     <div id="reviewable-main">
-        <p>There are {$numRows} reviews for this page</p>
         <form action="{$url}" method="post">
-            <p>Score<br>
+            <input type="hidden" name="reviewable-hidden" value="go" />
+            <p style="margin-bottom: 0em; font-weight: bold;">Comment:</p>
+            <textarea name="reviewable-comment" id="reviewable-comment"></textarea>
+            <b>Score:</b>
             <select name="reviewable-review">
                 <option value="-1">Select</option>
                 {$optionString}
             </select>
-            </p>
-            <p style="margin-bottom:0em;">Comment</p>
-            <textarea name="reviewable-comment" id="reviewable-comment"></textarea>
-            <p>
-                <input type="hidden" name="reviewable-hidden" value="go" />
-                <button type="submit">Submit</button>
-            </p>
+            <button type="submit">Submit</button>
         </form>
     </div>
 </div>
@@ -171,7 +167,7 @@ EOT;
 $('a#reviewable-toggle').click(function() {
     newText = "hide";
     if($('a#reviewable-toggle').html() == newText) {
-        newText = "show";
+        newText = "Post Review";
     }
 
     $('div#reviewable-main').toggle();
