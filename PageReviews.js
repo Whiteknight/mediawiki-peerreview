@@ -11,7 +11,7 @@ function UserInGroup(group) {
 
 addOnloadHook(function () {
     if(
-        (UserInGroup('Teachers') || UserInGroup('Administrators')) &&
+        (UserInGroup('Teachers') || UserInGroup('sysop')) &&
         ((wgCanonicalNamespace != "MediaWiki") && (wgCanonicalNamespace != "Special"))
     ) {
         addPortletLink('p-cactions', wgServer + wgScript + "?title=Special:PageOwner/" + wgPageName, 'ownership', 'ca-ownership', null, null);
@@ -40,4 +40,17 @@ addOnloadHook(function() {
         'pt-myreviews',
         'pt-mytalk'
     );
+});
+
+$('a#reviewable-toggle').click(function() {
+    newText = "Hide";
+    if($('a#reviewable-toggle').html() == newText)
+        newText = "Post Review";
+
+    $('div#reviewable-main').toggle();
+    $('a#reviewable-toggle').html(newText);
+});
+
+$('a#reviewable-response-close').click(function() {
+    $('div#reviewable-response').remove();
 });

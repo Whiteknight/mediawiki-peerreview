@@ -14,12 +14,15 @@
 
 .review-box {
     margin: 0px 0px 5px 5px;
-    padding: 5px;
-    width: 20em;
+    padding: 2px;
+    width: 210px;
 }
 
 .reviewable-form-box {
-    float: right;
+    position: absolute;
+    top: 0px;
+    right: 0px;
+    font-size: 80%;
 }
 
 #reviewable-main {
@@ -31,5 +34,5 @@
 }
 
 #reviewable-comment {
-    width: 20em;
+    width: 200px;
 }

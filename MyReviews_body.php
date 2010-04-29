@@ -40,8 +40,6 @@ EOT;
         $dbr = wfGetDB(DB_SLAVE);
 
         // Reviews this user has given
-        // TODO: If the review was made to a page on which "I" am an owner,
-        //       signal it somehow.
         $selectquery =<<<EOSQL
 SELECT
     review_score.display_as, page.page_namespace, page.page_title, review.*
@@ -69,7 +67,7 @@ EOSQL;
 EOT;
         }
 
-        //Reviews given to this user
+        // Reviews given to this user
         $selectquery =<<<EOSQL
 SELECT
     page.page_namespace, page.page_title, review_score.display_as, review.*
@@ -92,18 +90,20 @@ EOSQL;
             $takenReviews = "<p>No reviews</p>";
         }
         while($row = $dbr->fetchObject($taken)) {
-            if ($row->user_id != $userId) {
-                $namespaceId = $row->page_namespace;
-                $namespace = $this->getNamespaceNameFromId($namespaceId);
-                $pagelink = $namespace . $row->page_title;
-                $takenReviews .= <<<EOT
+            $extrainfo = "";
+            if ($row->user_id == $userId) {
+                $extrainfo = "<span style='float: right; font-size: 80%'>(Given by Me)</span>";
+            }
+            $namespaceId = $row->page_namespace;
+            $namespace = $this->getNamespaceNameFromId($namespaceId);
+            $pagelink = $namespace . $row->page_title;
+            $takenReviews .= <<<EOT
             <div class="myReviews-review">
-                <p><b>Page</b>: <a href="{$wgScriptPath}/{$pagelink}">{$pagelink}</a></p>
+                <p>{$extrainfo}<b>Page</b>: <a href="{$wgScriptPath}/{$pagelink}">{$pagelink}</a></p>
                 <p><b>Score</b>: {$row->display_as}</p>
                 <p><b>Comment</b>: {$row->comment}</p>
             </div>
 EOT;
-            }
         }
 
         $html = <<<EOT

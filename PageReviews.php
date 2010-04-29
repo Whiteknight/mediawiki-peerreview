@@ -9,7 +9,7 @@ $wgHooks['OutputPageParserOutput'][] = array('PageReviews::addReviewForm');
 
 class PageReviews {
 
-    function addReviewCSS() {
+    function addCSSandJS() {
         global $wgScriptPath, $wgOut;
         $wgOut->addLink(array(
             'rel' => 'stylesheet',
@@ -18,6 +18,8 @@ class PageReviews {
             'screen,projection',
             'href' => "$wgScriptPath/extensions/PeerReview/PeerReview.css"
         ));
+        $wgOut->addScriptFile("http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js");
+        $wgOut->addScriptFile("$wgScriptPath/extensions/PeerReview/PageReviews.js");
     }
 
     function handlePostBack() {
@@ -91,11 +93,6 @@ EOT;
     <div style="padding-top:1em; float:right;">[<a href="#" id="reviewable-response-close">Close</a>]</div>
     {$response}
 </div>
-<script type="text/javascript">
-    $('a#reviewable-response-close').click(function() {
-        $('div#reviewable-response').remove();
-    });
-</script>
 EOT;
         $wgOut->addHTML($finalResponse);
     }
@@ -116,10 +113,11 @@ EOT;
         // $namespace = $wgArticle->getTitle()->getNamespace();
         if(empty($wgArticle)
             || !$wgArticle->exists()
-            || $wgArticle->getTitle()->isTalkPage()) {
+            || $wgArticle->getTitle()->isTalkPage()
+            || $wgUser->getID() == 0) {
             return true;
         }
-        PageReviews::addReviewCSS();
+        PageReviews::addCSSandJS();
 
         // Handle the POST if necessary
         if($wgRequest->getVal('reviewable-hidden') == 'go') {
@@ -160,20 +158,6 @@ EOT;
         </form>
     </div>
 </div>
-<script type="text/javascript">
-/*<![CDATA[*/
-//Toggle visibility of 'reviewable' box
-$('a#reviewable-toggle').click(function() {
-    newText = "Hide";
-    if($('a#reviewable-toggle').html() == newText) {
-        newText = "Post Review";
-    }
-
-    $('div#reviewable-main').toggle();
-    $('a#reviewable-toggle').html(newText);
-});
-/*]]>*/
-</script>
 EOT;
         $out->addHTML($buttonHtml);
         return true;

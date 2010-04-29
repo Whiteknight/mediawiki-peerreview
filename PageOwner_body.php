@@ -50,7 +50,7 @@ class PageOwner extends SpecialPage {
             $userid = User::idFromName($username);
             $this->handleRemoveUser($pagename, $pageid, $username, $userid);
         }
-        $wgOut->addHTML("<br><a href=\"$wgScriptPath/Special:PageOwner/$pagename\">Back</a>");
+        $wgOut->addHTML("<br><a href=\"$wgScriptPath/index.php?title=Special:PageOwner/$pagename\">Back</a>");
     }
 
     function execute( $par ) {
