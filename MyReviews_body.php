@@ -18,6 +18,29 @@ class MyReviews extends SpecialPage {
         return $namespace;
     }
 
+    function linkArgs($args = "")
+    {
+        return Title::newFromText("Special:MyReviews/$args")->getFullURL();
+    }
+
+    function deleteRecord($recordid)
+    {
+        global $wgOut;
+        $todelete = array(
+            'id' => $recordid
+        );
+        $dbw = wfGetDB(DB_MASTER);
+        $dbw->delete('review', $todelete);
+        $back = $this->linkArgs();
+        $html = <<<EOT
+<p>
+    Comment deleted.<br>
+    <a href="$back">Back</a>
+</p>
+EOT;
+        $wgOut->addHTML($html);
+    }
+
     function execute($par) {
         global $wgRequest, $wgOut;
         global $wgUser, $wgContLang, $wgScriptPath;
@@ -31,6 +54,13 @@ class MyReviews extends SpecialPage {
             'screen,projection',
             'href' => "$wgScriptPath/extensions/PeerReview/PeerReview.css"
         ));
+        if (isset($par)) {
+            $parts = explode('/', $par);
+            if ($parts[0] == "delete") {
+                $this->deleteRecord($parts[1]);
+                return;
+            }
+        }
 
         $userName = "";
         $userId = $wgUser->getID();
@@ -64,10 +94,17 @@ EOSQL;
         while($row = $dbr->fetchObject($given)) {
             $namespaceId = $row->page_namespace;
             $namespace = $this->getNamespaceNameFromId($namespaceId);
+            $pagehref = Title::newFromText($namespace . $row->page_title)->getFullURL();
             $pagelink = $namespace . $row->page_title;
+            $deletelink = $this->linkArgs("delete/{$row->id}");
             $givenReviews .= <<<EOT
             <div class="myReviews-review-given">
-                <p><b>Page</b>: <a href="{$wgScriptPath}/{$pagelink}">{$pagelink}</a></p>
+                <p>
+                    <span style='float: right; font-size: 80%'>
+                        <a href="{$deletelink}">delete</a>
+                    </span>
+                    <b>Page</b>: <a href="{$pagehref}">{$pagelink}</a>
+                </p>
                 <p><b>Score</b>: {$row->display_as}</p>
                 <p><b>Comment</b>: {$row->comment}</p>
             </div>
@@ -104,9 +141,10 @@ EOSQL;
             $namespaceId = $row->page_namespace;
             $namespace = $this->getNamespaceNameFromId($namespaceId);
             $pagelink = $namespace . $row->page_title;
+            $pagehref = Title::newFromText($pagelink)->getFullURL();
             $takenReviews .= <<<EOT
             <div class="myReviews-review-received">
-                <p>{$extrainfo}<b>Page</b>: <a href="{$wgScriptPath}/{$pagelink}">{$pagelink}</a></p>
+                <p>{$extrainfo}<b>Page</b>: <a href="{$pagehref}">{$pagelink}</a></p>
                 <p><b>Score</b>: {$row->display_as}</p>
                 <p><b>Comment</b>: {$row->comment}</p>
             </div>
