@@ -50,7 +50,8 @@ class PageOwner extends SpecialPage {
             $userid = User::idFromName($username);
             $this->handleRemoveUser($pagename, $pageid, $username, $userid);
         }
-        $wgOut->addHTML("<br><a href=\"$wgScriptPath/index.php?title=Special:PageOwner/$pagename\">Back</a>");
+        $href = Title::newFromText("Special:PageOwner/$pagename")->getFullURL();
+        $wgOut->addHTML("<br><a href=\"$href\">Back</a>");
     }
 
     function execute( $par ) {
@@ -86,16 +87,20 @@ EOSQL;
         }
         while($row = $dbr->fetchObject($given)) {
             $username = $row->user_name;
+            $userpage = Title::newFromText("User:$username");
+            $userhref = $userpage->getFullURL();
+            $talkhref = $userpage->getTalkPage()->getFullURL();
             $currentowners .= <<<EOT
 <p>
     [<a href="javascript: removeuser('$username')" style="font-size: 80%;">Remove</a>]
     &mdash;
-    <a href="$wgScriptPath?title=User:$username">$username</a>
-    (<a href="$wgScriptPath?title=User_talk:$username">Talk</a>)
+    <a href="$userhref">$username</a> (<a href="$talkhref">Talk</a>)
 </p>
 EOT;
         }
 
+        $href = Title::newFromText("Special:PageOwner")->getFullURL();
+        $pagehref = Title::newFromText($par)->getFullURL();
         $this->setHeaders();
         $html = <<<EOT
 <script type="text/javascript">
@@ -109,17 +114,17 @@ EOT;
     <tr>
         <td style="width: 50%; border: 1px solid #000000; background-color: #F8F8F8;" valign="top">
             <h3>Current Page Owners</h3>
-            <form name="removepeople" action="{$wgScriptPath}/index.php?title=Special:PageOwner" method="POST">
+            <form name="removepeople" action="{$href}" method="POST">
                 {$currentowners}
                 <input type="hidden" name="par_pagename" value="{$par}"/>
                 <input type="hidden" name="par_username" id="par_username" value=""/>
             </form>
         </td>
         <td style="width: 50%; border: 1px solid #000000; background-color: #F8F8F8;" valign="top">
-            <h3><a href="{$wgScriptPath}/{$par}">{$par}</a></h3>
+            <h3><a href="{$pagehref}">{$par}</a></h3>
             <hr>
             <h3>Add New Owners</h3>
-            <form action="{$wgScriptPath}/index.php?title=Special:PageOwner" method="POST">
+            <form action="$href" method="POST">
                 New owner: <input type="textbox" name="newowner"/>
                 <input type="hidden" name="par_pagename" value="{$par}"/>
                 <input type="submit" name="submit" value="Add"/>
