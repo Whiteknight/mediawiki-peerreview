@@ -21,6 +21,10 @@ $wgExtensionMessagesFiles['MyReviews'] = $dir . 'MyReviews.i18n.php';
 $wgExtensionAliasesFiles['MyReviews'] = $dir . 'MyReviews.alias.php';
 $wgSpecialPages['MyReviews'] = 'MyReviews';
 
+// by default, sysops can assign page ownership
+$wgGroupPermissions['sysop']['assignpage'] = true;
+$wgGroupPermissions['assigner']['assignpage'] = true;
+
 $wgExtensionCredits['specialpage'][] = array(
    'name' => 'PeerReview',
    'author' => 'The WITTIE Team',

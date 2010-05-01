@@ -5,6 +5,23 @@ class MyReviews extends SpecialPage {
         wfLoadExtensionMessages('MyReviews');
     }
 
+    protected $username = "";
+    protected $userID = 0;
+
+    function validateUser()
+    {
+        global $wgUser;
+
+        $this->userName = "";
+        $this->userID = $wgUser->getID();
+        if($this->userID == 0) {
+            return false;
+        } else {
+            $this->userName = $wgUser->getName();
+            return true;
+        }
+    }
+
     function getNamespaceNameFromId($id) {
         global $wgContLang, $wgExtraNamespaces;
         $namespace = "";
@@ -53,6 +70,14 @@ EOT;
             'screen,projection',
             'href' => "$wgScriptPath/extensions/PeerReview/PeerReview.css"
         ));
+        if (!$this->validateUser()) {
+            $html = <<<EOT
+<h2>Access Denied!</h2>
+<p>You must be logged in to view this page!</p>
+EOT;
+            $wgOut->addHTML($html);
+            return;
+        }
         if (isset($par)) {
             $parts = explode('/', $par);
             if ($parts[0] == "delete") {
@@ -67,18 +92,7 @@ EOT;
     function showMainPage() {
         global $wgRequest, $wgOut;
         global $wgUser, $wgContLang, $wgScriptPath;
-        $userName = "";
-        $userId = $wgUser->getID();
-        if($userId == 0) {
-            $html = <<<EOT
-<h2>Denied!</h2>
-<p>You must be logged in to view this page!</p>
-EOT;
-            $wgOut->addHTML($html);
-            return true;
-        } else {
-            $userName = $wgUser->getName();
-        }
+
         $dbr = wfGetDB(DB_SLAVE);
 
         // Reviews this user has given
@@ -89,7 +103,7 @@ SELECT
         review_score INNER JOIN (
             review INNER JOIN page ON review.page_id = page.page_id
         ) ON review.review_score_id = review_score.id
-    WHERE user_id = '{$userId}';
+    WHERE user_id = '{$this->userID}';
 EOSQL;
         $given = $dbr->query($selectquery);
         $givenReviews = "";
@@ -126,10 +140,10 @@ SELECT
     ) INNER JOIN page
         ON review.page_id = page.page_id
     WHERE review.page_id IN (
-        SELECT page_id FROM page_owner WHERE user_id = '{$userId}'
+        SELECT page_id FROM page_owner WHERE user_id = '{$this->userID}'
         UNION
         SELECT rev_page FROM revision
-            WHERE rev_parent_id = 0 AND rev_user = '{$userId}'
+            WHERE rev_parent_id = 0 AND rev_user = '{$this->userID}'
             GROUP BY rev_page
     );
 EOSQL;
@@ -140,7 +154,7 @@ EOSQL;
         }
         while($row = $dbr->fetchObject($taken)) {
             $extrainfo = "";
-            if ($row->user_id == $userId) {
+            if ($row->user_id == $this->userID) {
                 $extrainfo = "<span style='float: right; font-size: 80%'>(Given by Me)</span>";
             }
             $namespaceId = $row->page_namespace;

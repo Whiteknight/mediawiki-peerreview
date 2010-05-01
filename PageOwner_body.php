@@ -5,6 +5,23 @@ class PageOwner extends SpecialPage {
         wfLoadExtensionMessages('PageOwner');
     }
 
+    protected $username = "";
+    protected $userID = 0;
+
+    function validateUser()
+    {
+        global $wgUser;
+
+        $this->userName = "";
+        $this->userID = $wgUser->getID();
+        if($this->userID != 0 && $wgUser->isAllowed("assignpage")) {
+            $this->userName = $wgUser->getName();
+            return true;
+        } else {
+            return false;
+        }
+    }
+
     function handleAddUser($pagename, $pageid, $username, $userid) {
         global $wgOut;
         if ($userid == 0) {
@@ -37,7 +54,7 @@ class PageOwner extends SpecialPage {
     }
 
     function handlePostBack() {
-        global $wgRequest, $wgScriptPath, $wgOut;
+        global $wgRequest, $wgOut;
         $pagename = $wgRequest->getText('par_pagename');
         $pageid = Title::newFromText($pagename)->getArticleId();
         $submit = $wgRequest->getText('submit');
@@ -56,8 +73,19 @@ class PageOwner extends SpecialPage {
 
     function execute( $par ) {
         global $wgRequest, $wgOut;
-        global $wgScriptPath;
 
+        if (!$this->validateUser()) {
+            $html = <<<EOT
+<h2>Access Denied!</h2>
+<p>
+    You must be logged in and have assigner permissions to access this
+    page. Please contact a site administrator if you think you should have
+    this right.
+</p>
+EOT;
+            $wgOut->addHTML($html);
+            return;
+        }
         if ($wgRequest->wasPosted()) {
             $this->handlePostBack();
             return;
@@ -66,6 +94,12 @@ class PageOwner extends SpecialPage {
             $wgOut->addHTML("<p>Error: No page specified</p>");
             return;
         }
+        $this->showMainSpecialPage($par);
+    }
+
+    function showMainSpecialPage($par)
+    {
+        global $wgRequest, $wgOut;
 
         $pageid = Title::newFromText($par)->getArticleId();
         if ($pageid == 0) {
