@@ -93,12 +93,12 @@ EOT;
         $dbr->freeResult($res);
         $href = $this->linkArgs();
         $html = <<<EOT
-<h2>Edit comment</h2>
 <form action="$href" method="POST">
     <input type="hidden" name="recordid" value="{$recordid}"/>
     <input type="hidden" name="ownerid" value="{$ownerid}"/>
-    <textarea name="commenttext">$comment</textarea>
-    <select name="commentscore">
+    <p><b>Comment:</b></p>
+    <textarea name="commenttext" style="height: 250px;">$comment</textarea>
+    <b>Score:</b> <select name="commentscore">
         $optionString
     </select>
     <input type="submit" name="submitsave" value="Save">
@@ -116,7 +116,10 @@ EOT;
         $score = $wgRequest->getVal("commentscore");
         $text = $wgRequest->getVal("commenttext");
         $dbr = wfGetDB(DB_MASTER);
-        $dbr->query("UPDATE review SET comment='$text', review_score_id='$score' WHERE id='$recordid'");
+        $text = $dbr->addQuotes($text);
+        $score = $dbr->addQuotes($score);
+        // TODO: How to sanitize SQL input?
+        $dbr->query("UPDATE review SET comment=$text, review_score_id=$score WHERE id='$recordid'");
         $href = $this->linkArgs();
         $html = <<<EOT
 <h2>Comment Updated</h2>
