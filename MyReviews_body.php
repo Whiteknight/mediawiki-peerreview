@@ -24,6 +24,13 @@ class MyReviews extends SpecialPage {
 
         $this->setHeaders();
         $wgOut->setPageTitle("My Reviews");
+        $wgOut->addLink(array(
+            'rel' => 'stylesheet',
+            'type' => 'text/css',
+            'media' =>
+            'screen,projection',
+            'href' => "$wgScriptPath/extensions/PeerReview/PeerReview.css"
+        ));
 
         $userName = "";
         $userId = $wgUser->getID();
@@ -59,7 +66,7 @@ EOSQL;
             $namespace = $this->getNamespaceNameFromId($namespaceId);
             $pagelink = $namespace . $row->page_title;
             $givenReviews .= <<<EOT
-            <div class="myReviews-review">
+            <div class="myReviews-review-given">
                 <p><b>Page</b>: <a href="{$wgScriptPath}/{$pagelink}">{$pagelink}</a></p>
                 <p><b>Score</b>: {$row->display_as}</p>
                 <p><b>Comment</b>: {$row->comment}</p>
@@ -98,7 +105,7 @@ EOSQL;
             $namespace = $this->getNamespaceNameFromId($namespaceId);
             $pagelink = $namespace . $row->page_title;
             $takenReviews .= <<<EOT
-            <div class="myReviews-review">
+            <div class="myReviews-review-received">
                 <p>{$extrainfo}<b>Page</b>: <a href="{$wgScriptPath}/{$pagelink}">{$pagelink}</a></p>
                 <p><b>Score</b>: {$row->display_as}</p>
                 <p><b>Comment</b>: {$row->comment}</p>

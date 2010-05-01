@@ -29,8 +29,18 @@
     display: none;
 }
 
-.myReviews-review {
-    border-bottom: 1px solid black;
+.myReviews-review-received {
+    border: 1px solid #0000AA;
+    background-color: #F8F8F8;
+    margin-bottom: 5px;
+    padding: 5px
+}
+
+.myReviews-review-given {
+    border: 1px solid #00AA00;
+    background-color: #F8F8F8;
+    margin-bottom: 5px;
+    padding: 5px
 }
 
 #reviewable-comment {
