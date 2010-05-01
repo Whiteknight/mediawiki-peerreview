@@ -7,6 +7,7 @@ class MyReviews extends SpecialPage {
 
     protected $username = "";
     protected $userID = 0;
+    protected $viewer = false;
 
     function validateUser()
     {
@@ -18,6 +19,7 @@ class MyReviews extends SpecialPage {
             return false;
         } else {
             $this->username = $wgUser->getName();
+            $this->viewer = $wgUser->isAllowed('viewreviews');
             return true;
         }
     }
@@ -94,6 +96,7 @@ EOT;
         $href = $this->linkArgs();
         $html = <<<EOT
 <form action="$href" method="POST">
+    <input type="hidden" name="postbackmode" value="editcomment"/>
     <input type="hidden" name="recordid" value="{$recordid}"/>
     <input type="hidden" name="ownerid" value="{$ownerid}"/>
     <p><b>Comment:</b></p>
@@ -111,24 +114,33 @@ EOT;
     function handlePostBack()
     {
         global $wgOut, $wgRequest;
-        $recordid = $wgRequest->getText("recordid");
-        $ownerid = $wgRequest->getText("ownerid");
-        $score = $wgRequest->getVal("commentscore");
-        $text = $wgRequest->getVal("commenttext");
-        $dbr = wfGetDB(DB_MASTER);
-        $text = $dbr->addQuotes($text);
-        $score = $dbr->addQuotes($score);
-        // TODO: How to sanitize SQL input?
-        $dbr->query("UPDATE review SET comment=$text, review_score_id=$score WHERE id='$recordid'");
-        $href = $this->linkArgs();
-        $html = <<<EOT
+
+        $postbackmode = $wgRequest->getText("postbackmode");
+        if ($postbackmode == "editcomment") {
+            $recordid = $wgRequest->getText("recordid");
+            $ownerid = $wgRequest->getText("ownerid");
+            $score = $wgRequest->getVal("commentscore");
+            $text = $wgRequest->getVal("commenttext");
+            $dbr = wfGetDB(DB_MASTER);
+            $text = $dbr->addQuotes($text);
+            $score = $dbr->addQuotes($score);
+            // TODO: How to sanitize SQL input?
+            $dbr->query("UPDATE review SET comment=$text, review_score_id=$score WHERE id='$recordid'");
+            $href = $this->linkArgs();
+            $html = <<<EOT
 <h2>Comment Updated</h2>
 <p>
     Your comment has been successfully updated!
 </p>
 <a href="$href">Back</a>
 EOT;
-        $wgOut->addHTML($html);
+            $wgOut->addHTML($html);
+        }
+        else if ($postbackmode == "impersonateuser") {
+            $this->username = $wgRequest->getText("username");
+            $this->userID = User::idFromName($this->username);
+            $this->showMainPage();
+        }
     }
 
     function execute($par) {
@@ -172,7 +184,19 @@ EOT;
 
     function showMainPage() {
         global $wgRequest, $wgOut;
-        global $wgUser, $wgContLang, $wgScriptPath;
+
+        if ($this->viewer) {
+            $html = <<<EOT
+<form action="" method="POST">
+    <input type="hidden" name="postbackmode" value="impersonateuser">
+    <b>Choose user to view: </b>
+    <input type="text" name="username"/>
+    <input type="submit" name="submit" value="View"/>
+</form>
+EOT;
+            $wgOut->addHTML($html);
+        }
+
 
         $dbr = wfGetDB(DB_SLAVE);
 
@@ -239,7 +263,7 @@ EOSQL;
         while($row = $dbr->fetchObject($taken)) {
             $extrainfo = "";
             if ($row->user_id == $this->userID) {
-                $extrainfo = "<span style='float: right; font-size: 80%'>(Given by Me)</span>";
+                $extrainfo = "<span style='float: right; font-size: 80%'>(Self)</span>";
             }
             $namespaceId = $row->page_namespace;
             $namespace = $this->getNamespaceNameFromId($namespaceId);
@@ -259,11 +283,11 @@ EOT;
 <table style="width: 100%;" cellspacing="5" cellpadding="5">
     <tr>
         <td style="width: 50%; border: 1px solid #000040; background: #F0F0FF;" valign="top">
-            <h3>Reviews given to me</h3>
+            <h3>Reviews given to {$this->username}</h3>
             {$takenReviews}
         </td>
         <td style="width: 50%; border: 1px solid #004000; background: #F0FFF0;" valign="top">
-            <h3>Reviews I've given</h3>
+            <h3>Reviews given by {$this->username}</h3>
             {$givenReviews}
         </td>
     </tr>

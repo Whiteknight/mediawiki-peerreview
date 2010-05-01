@@ -23,7 +23,9 @@ $wgSpecialPages['MyReviews'] = 'MyReviews';
 
 // by default, sysops can assign page ownership
 $wgGroupPermissions['sysop']['assignpage'] = true;
+$wgGroupPermissions['sysop']['viewreviews'] = true;
 $wgGroupPermissions['assigner']['assignpage'] = true;
+$wgGroupPermissions['grader']['viewreviews'] = true;
 
 $wgExtensionCredits['specialpage'][] = array(
    'name' => 'PeerReview',
