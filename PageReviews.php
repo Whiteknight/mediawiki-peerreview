@@ -146,8 +146,8 @@ EOT;
         $numRows = $dbr->numRows($res);
 
         $buttonHtml = <<<EOT
-<div class="reviewable-form-box review-box info">
-    <span style="float: right;">[<a id="reviewable-toggle" href="#" onclick="PR_toggle_review();">Post Review</a>]</span>
+<div id="reviewable-big-box" class="reviewable-form-box review-box info">
+    <span style="float: right;">[<a id="reviewable-toggle" href="#">Post Review</a>]</span>
     <b>{$numRows}</b> reviews
     <div id="reviewable-main">
         <form action="{$url}" method="post">
@@ -164,9 +164,13 @@ EOT;
     </div>
     <script type="text/javascript">
         $('a#reviewable-toggle').click(function() {
-            newText = "Hide";
-            if($('a#reviewable-toggle').html() == newText)
+            if($('a#reviewable-toggle').html() == "Hide") {
                 newText = "Post Review";
+                $('div#reviewable-big-box').width(210);
+            } else {
+                newText = "Hide";
+                $('div#reviewable-big-box').width(510);
+            }
             $('div#reviewable-main').toggle();
             $('a#reviewable-toggle').html(newText);
         });
