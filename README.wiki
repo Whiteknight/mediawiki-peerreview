@@ -7,33 +7,29 @@ corresponds to how studens are given particular assignments in a traditional
 classroom. Students edit their pages and are able to leave reviews on the pages
 of others.
 
-Each review consists of a numerical ranking and a short text comment.
+Each review consists of a score and a short text comment.
 
 == Installation ==
 
-=== Prerequisites ===
-
-You need jQuery. This extension does not supply jQuery itself. This extension
-will not run properly without jQuery.
-
 === Install Steps ===
 
-1) Make sure all prerequisites are installed properly.
-2) Setup the SQL tables. Depending on your user credentials and database name,
+1) Setup the SQL tables. Depending on your user credentials and database name,
    this incantation might work for you:
 
     mysql -u root -p wikidb < tables.sql
 
-3) Setup the review scores in the Database. Again, depending on your credentials
-   and database, this incantation might work:
+2) Setup the review scores in the Database. An example SQL file has been added
+   that adds numerical scores 1-4 by default. To use this default system,
+   again depending on your credentials and database, this incantation might
+   work:
 
     mysql -u root -p wikidb < reviews4.sql
 
-4) Copy all contents of the repository, except the .sql files, to the
+3) Copy all contents of the repository, except the .sql files, to the
    /extension/PeerReview directory in your wiki installation.
-5) Add a link to /extension/PeerReview/PeerReview.js to your wiki. There are a
+4) Add a link to /extensions/PeerReview/PeerReview.js to your wiki. There are a
    number of ways to do this.
-6) Add this line to your LocalSettings.php:
+5) Add this line to your LocalSettings.php:
 
     include_once( "$IP/extensions/PeerReview/PeerReview.php" );
 
