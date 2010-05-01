@@ -29,12 +29,34 @@ $wgSpecialPages['MyReviews'] = 'MyReviews';
 $wgExtensionFunctions[] = 'PeerReview_Setup';
 function PeerReview_Setup() {
     global $wgUser, $wgHooks;
+    PeerReview_addJSAndCSS();
     if ($wgUser->getID()) {
         $wgHooks['PersonalUrls'][] = 'PeerReview_addPersonalUrl';
         if ($wgUser->isAllowed("assignpage")) {
             $wgHooks['SkinTemplateContentActions'][] = 'PeerReview_AddActionContentHook';
         }
     }
+}
+
+function PeerReview_addJSAndCSS()
+{
+    global $wgOut, $wgUser, $wgScriptPath;
+    $skin = $wgUser->getSkin()->getSkinName();
+    $wgOut->addLink(array(
+        'rel' => 'stylesheet',
+        'type' => 'text/css',
+        'media' =>
+        'screen,projection',
+        'href' => "$wgScriptPath/extensions/PeerReview/PeerReview.css"
+    ));
+    $wgOut->addLink(array(
+        'rel' => 'stylesheet',
+        'type' => 'text/css',
+        'media' =>
+        'screen,projection',
+        'href' => "$wgScriptPath/extensions/PeerReview/PeerReview_{$skin}.css"
+    ));
+    $wgOut->addScriptFile("http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js");
 }
 
 # Add the "my reviews" link to the personal URLs list

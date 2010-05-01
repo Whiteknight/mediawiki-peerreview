@@ -8,20 +8,6 @@
 $wgHooks['OutputPageParserOutput'][] = array('PageReviews::addReviewForm');
 
 class PageReviews {
-
-    function addCSSandJS() {
-        global $wgScriptPath, $wgOut;
-        $wgOut->addLink(array(
-            'rel' => 'stylesheet',
-            'type' => 'text/css',
-            'media' =>
-            'screen,projection',
-            'href' => "$wgScriptPath/extensions/PeerReview/PeerReview.css"
-        ));
-        $wgOut->addScriptFile("http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js");
-        $wgOut->addScriptFile("$wgScriptPath/extensions/PeerReview/PageReviews.js");
-    }
-
     function handlePostBack() {
         global $wgRequest;
         global $wgUser;
@@ -122,7 +108,6 @@ EOT;
             || $wgUser->getID() == 0) {
             return true;
         }
-        PageReviews::addCSSandJS();
 
         // Handle the POST if necessary
         if($wgRequest->getVal('reviewable-hidden') == 'go') {

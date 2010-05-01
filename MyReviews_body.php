@@ -148,13 +148,6 @@ EOT;
 
         $this->setHeaders();
         $wgOut->setPageTitle("My Reviews");
-        $wgOut->addLink(array(
-            'rel' => 'stylesheet',
-            'type' => 'text/css',
-            'media' =>
-            'screen,projection',
-            'href' => "$wgScriptPath/extensions/PeerReview/PeerReview.css"
-        ));
         if (!$this->validateUser()) {
             $html = <<<EOT
 <h2>Access Denied!</h2>
