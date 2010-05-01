@@ -17,7 +17,7 @@ class MyReviews extends SpecialPage {
         if($this->userID == 0) {
             return false;
         } else {
-            $this->userName = $wgUser->getName();
+            $this->username = $wgUser->getName();
             return true;
         }
     }
@@ -37,7 +37,10 @@ class MyReviews extends SpecialPage {
 
     function linkArgs($args = "")
     {
-        return Title::newFromText("Special:MyReviews/$args")->getFullURL();
+        $title = "Special:MyReviews";
+        if ($args != "")
+            $title .= "/" . $args;
+        return Title::newFromText($title)->getFullURL();
     }
 
     function deleteRecord($recordid)
@@ -58,8 +61,75 @@ EOT;
         $wgOut->addHTML($html);
     }
 
+    function editRecordForm($recordid, $ownerid)
+    {
+        global $wgOut;
+        if ($this->userID != $ownerid) {
+            $html = <<<EOT
+<h2>Access Denied!</h2>
+<p>
+    You cannot edit review {$recordid} because you did not create it
+</p>
+EOT;
+            $wgOut->addHTML($html);
+            return;
+        }
+        $dbr = wfGetDB(DB_SLAVE);
+        $res = $dbr->query("SELECT * FROM review WHERE id = '$recordid';");
+        $row = $dbr->fetchObject($res);
+        $scoreid = $row->review_score_id;
+        $comment = $row->comment;
+        $dbr->freeResult($res);
+
+        $res = $dbr->select('review_score', array('id', 'display_as'));
+        $optionString = "";
+        while($row = $dbr->fetchObject($res)) {
+            $selected = "";
+            if ($row->id == $scoreid) {
+                $selected = "selected";
+            }
+            $optionString .= "<option value=\"{$row->id}\" $selected>{$row->display_as}</option>";
+        }
+        $dbr->freeResult($res);
+        $href = $this->linkArgs();
+        $html = <<<EOT
+<h2>Edit comment</h2>
+<form action="$href" method="POST">
+    <input type="hidden" name="recordid" value="{$recordid}"/>
+    <input type="hidden" name="ownerid" value="{$ownerid}"/>
+    <textarea name="commenttext">$comment</textarea>
+    <select name="commentscore">
+        $optionString
+    </select>
+    <input type="submit" name="submitsave" value="Save">
+    <a href="$href">Cancel</a>
+</form>
+EOT;
+        $wgOut->addHTML($html);
+    }
+
+    function handlePostBack()
+    {
+        global $wgOut, $wgRequest;
+        $recordid = $wgRequest->getText("recordid");
+        $ownerid = $wgRequest->getText("ownerid");
+        $score = $wgRequest->getVal("commentscore");
+        $text = $wgRequest->getVal("commenttext");
+        $dbr = wfGetDB(DB_MASTER);
+        $dbr->query("UPDATE review SET comment='$text', review_score_id='$score' WHERE id='$recordid'");
+        $href = $this->linkArgs();
+        $html = <<<EOT
+<h2>Comment Updated</h2>
+<p>
+    Your comment has been successfully updated!
+</p>
+<a href="$href">Back</a>
+EOT;
+        $wgOut->addHTML($html);
+    }
+
     function execute($par) {
-        global $wgOut, $wgScriptPath;
+        global $wgOut, $wgScriptPath, $wgRequest;
 
         $this->setHeaders();
         $wgOut->setPageTitle("My Reviews");
@@ -78,10 +148,18 @@ EOT;
             $wgOut->addHTML($html);
             return;
         }
+        if ($wgRequest->wasPosted()) {
+            $this->handlePostBack();
+            return;
+        }
         if (isset($par)) {
             $parts = explode('/', $par);
             if ($parts[0] == "delete") {
                 $this->deleteRecord($parts[1]);
+                return;
+            }
+            if ($parts[0] == "edit") {
+                $this->editRecordForm($parts[1], $parts[2]);
                 return;
             }
         } else {
@@ -116,11 +194,14 @@ EOSQL;
             $pagehref = Title::newFromText($namespace . $row->page_title)->getFullURL();
             $pagelink = $namespace . $row->page_title;
             $deletelink = $this->linkArgs("delete/{$row->id}");
+            $editlink = $this->linkArgs("edit/{$row->id}/{$row->user_id}");
             $givenReviews .= <<<EOT
             <div class="myReviews-review-given">
                 <p>
                     <span style='float: right; font-size: 80%'>
                         <a href="{$deletelink}">delete</a>
+                        &mdash;
+                        <a href="{$editlink}">edit</a>
                     </span>
                     <b>Page</b>: <a href="{$pagehref}">{$pagelink}</a>
                 </p>
@@ -171,7 +252,7 @@ EOT;
         }
 
         $html = <<<EOT
-<h2 style="clear:both;">{$userName}'s Reviews</h2>
+<h2 style="clear:both;">{$this->username}'s Reviews</h2>
 <table style="width: 100%;" cellspacing="5" cellpadding="5">
     <tr>
         <td style="width: 50%; border: 1px solid #000040; background: #F0F0FF;" valign="top">
