@@ -42,8 +42,7 @@ EOT;
     }
 
     function execute($par) {
-        global $wgRequest, $wgOut;
-        global $wgUser, $wgContLang, $wgScriptPath;
+        global $wgOut, $wgScriptPath;
 
         $this->setHeaders();
         $wgOut->setPageTitle("My Reviews");
@@ -60,8 +59,14 @@ EOT;
                 $this->deleteRecord($parts[1]);
                 return;
             }
+        } else {
+            $this->showMainPage();
         }
+    }
 
+    function showMainPage() {
+        global $wgRequest, $wgOut;
+        global $wgUser, $wgContLang, $wgScriptPath;
         $userName = "";
         $userId = $wgUser->getID();
         if($userId == 0) {
