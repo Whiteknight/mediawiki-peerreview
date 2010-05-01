@@ -42,15 +42,6 @@ addOnloadHook(function() {
     );
 });
 
-$('a#reviewable-toggle').click(function() {
-    newText = "Hide";
-    if($('a#reviewable-toggle').html() == newText)
-        newText = "Post Review";
 
-    $('div#reviewable-main').toggle();
-    $('a#reviewable-toggle').html(newText);
-});
 
-$('a#reviewable-response-close').click(function() {
-    $('div#reviewable-response').remove();
-});
+

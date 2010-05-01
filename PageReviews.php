@@ -92,6 +92,11 @@ EOT;
 <div id="reviewable-response" class="review-box {$extraClass}">
     <div style="padding-top:1em; float:right;">[<a href="#" id="reviewable-response-close">Close</a>]</div>
     {$response}
+    <script type="text/javascript">
+        $('a#reviewable-response-close').click(function() {
+            $('div#reviewable-response').remove();
+        });
+    </script>
 </div>
 EOT;
         $wgOut->addHTML($finalResponse);
@@ -142,7 +147,7 @@ EOT;
 
         $buttonHtml = <<<EOT
 <div class="reviewable-form-box review-box info">
-    <span style="float: right;">[<a id="reviewable-toggle" href="#">Post Review</a>]</span>
+    <span style="float: right;">[<a id="reviewable-toggle" href="#" onclick="PR_toggle_review();">Post Review</a>]</span>
     <b>{$numRows}</b> reviews
     <div id="reviewable-main">
         <form action="{$url}" method="post">
@@ -157,6 +162,15 @@ EOT;
             <button type="submit">Submit</button>
         </form>
     </div>
+    <script type="text/javascript">
+        $('a#reviewable-toggle').click(function() {
+            newText = "Hide";
+            if($('a#reviewable-toggle').html() == newText)
+                newText = "Post Review";
+            $('div#reviewable-main').toggle();
+            $('a#reviewable-toggle').html(newText);
+        });
+    </script>
 </div>
 EOT;
         $out->addHTML($buttonHtml);
