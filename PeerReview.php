@@ -33,7 +33,8 @@ function PeerReview_Setup() {
     if ($wgUser->getID()) {
         $wgHooks['PersonalUrls'][] = 'PeerReview_addPersonalUrl';
         if ($wgUser->isAllowed("assignpage")) {
-            $wgHooks['SkinTemplateContentActions'][] = 'PeerReview_AddActionContentHook';
+            $wgHooks['SkinTemplateTabs'][] = 'PeerReview_AddActionContentHook';
+            $wgHooks['SkinTemplateNavigation'][] = 'PeerReview_AddActionContentHook2';
         }
     }
 }
@@ -60,25 +61,38 @@ function PeerReview_addJSAndCSS()
 }
 
 # Add the "my reviews" link to the personal URLs list
-function PeerReview_addPersonalUrl( &$personal_urls, $title ) {
+function PeerReview_addPersonalUrl(&$personal_urls, $title) {
     $personal_urls['myreviews'] = array(
-        'text' => "my reviews",
+        'text' => "My reviews",
         'href' => Skin::makeSpecialUrl('MyReviews')
     );
     return true;
 }
 
 # Add the "Ownership" link to the page tabs
-function PeerReview_AddActionContentHook( &$content_actions ) {
-    global $wgRequest, $wgRequest, $wgTitle;
-
-    $action = $wgRequest->getText( 'action' );
+function PeerReview_AddActionContentHook($skin, &$content_actions) {
+    global $wgTitle;
 
     if ($wgTitle->getNamespace() != NS_SPECIAL) {
         $content_actions['ownership'] = array(
             'class' => false,
             'text' => "Ownership",
             'href' => Skin::makeSpecialUrl('PageOwner')
+        );
+    }
+
+    return true;
+}
+
+# Add the "Ownership" link on the Vector skin
+function PeerReview_AddActionContentHook2($skin, &$links) {
+    global $wgTitle;
+
+    if ($wgTitle->getNamespace() != NS_SPECIAL) {
+        $links['actions']['ownership'] = array(
+            'class' => false,
+            'text' => "Ownership",
+            'href' => Skin::makeSpecialUrl('PageOwner') . "/" . $skin->mTitle->getEscapedText()
         );
     }
 
