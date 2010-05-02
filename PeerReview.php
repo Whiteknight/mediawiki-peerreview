@@ -38,6 +38,7 @@ function PeerReview_Setup() {
     }
 }
 
+# Add CSS and JS files to the environment
 function PeerReview_addJSAndCSS()
 {
     global $wgOut, $wgUser, $wgScriptPath;
@@ -56,7 +57,12 @@ function PeerReview_addJSAndCSS()
         'screen,projection',
         'href' => "$wgScriptPath/extensions/PeerReview/PeerReview_{$skin}.css"
     ));
-    $wgOut->addScriptFile("http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js");
+    if (method_exists($wgOut, 'includeJQuery')) {
+        $wgOut->includeJQuery();
+    } else {
+        # MW 1.15 and older
+        $wgOut->addScriptFile("http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js");
+    }
 }
 
 # Add the "my reviews" link to the personal URLs list
