@@ -3,15 +3,14 @@ $dir = dirname(__FILE__) . '/';
 
 # Alert the user that this is not a valid entry point to MediaWiki if they try to access the special pages file directly.
 if (!defined('MEDIAWIKI')) {
-        echo <<<EOT
+    echo <<<EOT
 To install my extension, put the following line in LocalSettings.php:
 require_once( "{$dir}PeerReview.php" );
 EOT;
-        exit( 1 );
+    exit( 1 );
 }
 
 include_once( "{$dir}PageReviews.php" );
-
 
 # Setup the PageOwner special page
 $wgAutoloadClasses['PageOwner'] = $dir . 'PageOwner_body.php';
@@ -109,11 +108,11 @@ $wgGroupPermissions['grader']['viewreviews'] = true;
 
 # Credits
 $wgExtensionCredits['specialpage'][] = array(
-   'name' => 'PeerReview',
-   'author' => 'Andrew Whitworth and Jason Grafinger',
-   'url' => 'http://www.wittieproject.org/',
-   'description' => 'Displays user related reviews',
-   'descriptionmsg' => 'myreviews-desc',
-   'version' => '1.0'
+   'name'           => 'PeerReview',
+   'author'         => 'Andrew Whitworth and Jason Grafinger',
+   'url'            => 'http://github.com/Whiteknight/mediawiki-peerreview',
+   'description'    => 'Allows users to peer-review pages',
+   'descriptionmsg' => 'peerreview-desc',
+   'version'        => '1.0.0'
 );
 ?>
