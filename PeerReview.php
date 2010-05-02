@@ -39,8 +39,7 @@ function PeerReview_Setup() {
 }
 
 # Add CSS and JS files to the environment
-function PeerReview_addJSAndCSS()
-{
+function PeerReview_addJSAndCSS() {
     global $wgOut, $wgUser, $wgScriptPath;
     $skin = $wgUser->getSkin()->getSkinName();
     $wgOut->addLink(array(
@@ -82,7 +81,7 @@ function PeerReview_AddActionContentHook($skin, &$content_actions) {
         $content_actions['ownership'] = array(
             'class' => false,
             'text' => "Ownership",
-            'href' => Skin::makeSpecialUrl('PageOwner')
+            'href' => Skin::makeSpecialUrl('PageOwner') . "/" . $skin->mTitle->getEscapedText()
         );
     }
 
