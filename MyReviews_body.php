@@ -188,26 +188,26 @@ EOT;
         }
     }
 
-    # Show the basic main page
-    function showMainPage() {
-        global $wgRequest, $wgOut;
-
+    function showViewerAdditions()
+    {
+        global $wgOut;
         if ($this->viewer) {
             $html = <<<EOT
-<form action="" method="POST">
-    <input type="hidden" name="postbackmode" value="impersonateuser"/>
-    <b>Choose user to view: </b>
-    <input type="text" name="username"/>
-    <input type="submit" name="submit" value="View"/>
-</form>
+<div style="float: right;">
+    <form action="" method="POST">
+        <input type="hidden" name="postbackmode" value="impersonateuser"/>
+        <b>Choose user to view: </b>
+        <input type="text" name="username"/>
+        <input type="submit" name="submit" value="View"/>
+    </form>
+</div>
 EOT;
             $wgOut->addHTML($html);
         }
+    }
 
-
-        $dbr = wfGetDB(DB_SLAVE);
-
-        // Reviews this user has given
+    # Reviews this user has given
+    function reviewsIGave($userid) {
         $selectquery =<<<EOSQL
 SELECT
     review_score.display_as, page.page_namespace, page.page_title, review.*
@@ -215,8 +215,9 @@ SELECT
         review_score INNER JOIN (
             review INNER JOIN page ON review.page_id = page.page_id
         ) ON review.review_score_id = review_score.id
-    WHERE user_id = '{$this->userID}';
+    WHERE user_id = '{$userid}';
 EOSQL;
+        $dbr = wfGetDB(DB_SLAVE);
         $given = $dbr->query($selectquery);
         $givenReviews = "";
         if($dbr->numRows($given) == 0) {
@@ -244,9 +245,15 @@ EOSQL;
             </div>
 EOT;
         }
+        return $givenReviews;
+    }
 
-        // Reviews given to this user
-        $selectquery =<<<EOSQL
+    # Reviews given to this user
+    function reviewsIReceive($userid) {
+        # Explanation of this SQL: We want to get page/review information (along
+        # with the displayable name of the review) for all pages that this user
+        # owns
+        $selectquery = <<<EOSQL
 SELECT
     page.page_namespace, page.page_title, review_score.display_as, review.*
     FROM (
@@ -255,13 +262,12 @@ SELECT
     ) INNER JOIN page
         ON review.page_id = page.page_id
     WHERE review.page_id IN (
-        SELECT page_id FROM page_owner WHERE user_id = '{$this->userID}'
-        UNION
-        SELECT rev_page FROM revision
-            WHERE rev_parent_id = 0 AND rev_user = '{$this->userID}'
-            GROUP BY rev_page
+        SELECT page_id
+            FROM page_owner
+            WHERE user_id = '{$this->userID}'
     );
 EOSQL;
+        $dbr = wfGetDB(DB_SLAVE);
         $taken = $dbr->query($selectquery);
         $takenReviews = "";
         if($dbr->numRows($taken) == 0) {
@@ -284,7 +290,18 @@ EOSQL;
             </div>
 EOT;
         }
+        return $takenReviews;
+    }
 
+    # Show the basic main page
+    function showMainPage() {
+        global $wgRequest, $wgOut;
+
+        $this->showViewerAdditions();
+        $givenReviews = $this->reviewsIGave($this->userID);
+        $takenReviews = $this->reviewsIReceive($this->userID);
+
+        # TODO: Show a list of all pages I own
         $html = <<<EOT
 <h2 style="clear:both;">{$this->username}'s Reviews</h2>
 <table style="width: 100%;" cellspacing="5" cellpadding="5">

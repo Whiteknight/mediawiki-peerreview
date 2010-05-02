@@ -73,6 +73,7 @@ EOT;
                     'comment' => $wgRequest->getVal('reviewable-comment'
                 ));
                 $dbw->insert('review', $toInsert);
+
                 $extraClass = "PeerReview-PageReviews-success";
                 $response = <<<EOT
 <h2>Success!</h2>
