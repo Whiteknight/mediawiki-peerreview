@@ -4,7 +4,7 @@
  * @author Jason Grafinger
  */
 
-//Hooks
+# Startup hook
 $wgHooks['OutputPageParserOutput'][] = array('PageReviews::addReviewForm');
 
 class PageReviews {
@@ -17,8 +17,8 @@ class PageReviews {
         $response = "";
         $extraClass = "";
 
-        // Review and Comment must be set
-        // User must be logged in
+        # Review and Comment must be set
+        # User must be logged in
         if(!$wgRequest->getVal('reviewable-review')
             || !$wgRequest->getVal('reviewable-comment')
             || !is_numeric($wgRequest->getVal('reviewable-review'))

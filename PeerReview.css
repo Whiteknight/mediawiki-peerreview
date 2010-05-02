@@ -28,21 +28,37 @@
     display: none;
 }
 
-.myReviews-review-received {
+
+
+#reviewable-comment {
+    width: 500px;
+    height: 250px;
+}
+
+/* MyReviews special page */
+
+.PeerReview-MyReviews-received {
     border: 1px solid #0000AA;
     background-color: #F8F8F8;
     margin-bottom: 5px;
     padding: 5px
 }
 
-.myReviews-review-given {
+.PeerReview-MyReviews-given {
     border: 1px solid #00AA00;
     background-color: #F8F8F8;
     margin-bottom: 5px;
     padding: 5px
 }
 
-#reviewable-comment {
-    width: 500px;
-    height: 250px;
+#PeerReview-MyReviews-received-side {
+    width: 50%;
+    border: 1px solid #000040;
+    background: #F0F0FF;
+}
+
+#PeerReview-MyReviews-given-side {
+    width: 50%;
+    border: 1px solid #004000;
+    background: #F0FFF0;
 }

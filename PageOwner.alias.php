@@ -1,6 +1,6 @@
 <?php
 $aliases = array();
 $aliases['en'] = array (
-	'PageOwner' => array("PageOwner")
+    'PageOwner' => array("PageOwner")
 );
 

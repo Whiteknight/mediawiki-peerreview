@@ -9,6 +9,7 @@ class MyReviews extends SpecialPage {
     protected $userID = 0;
     protected $viewer = false;
 
+    # Validate the user. To use this page the user must be logged in
     function validateUser()
     {
         global $wgUser;
@@ -24,6 +25,8 @@ class MyReviews extends SpecialPage {
         }
     }
 
+    # Given a namespace ID value, convert it to a textual representation suitable
+    # for direct prepending to the title string
     function getNamespaceNameFromId($id) {
         global $wgContLang, $wgExtraNamespaces;
         $namespace = "";
@@ -37,6 +40,7 @@ class MyReviews extends SpecialPage {
         return $namespace;
     }
 
+    # Create a URL link to this special page, optionally with some arguments
     function linkArgs($args = "")
     {
         $title = "Special:MyReviews";
@@ -45,6 +49,7 @@ class MyReviews extends SpecialPage {
         return Title::newFromText($title)->getFullURL();
     }
 
+    # Delete a comment
     function deleteRecord($recordid)
     {
         global $wgOut;
@@ -63,6 +68,9 @@ EOT;
         $wgOut->addHTML($html);
     }
 
+    # Show an edit form to edit an existing comment
+    # TODO: We should either have a link to the page, or find a way to display
+    #       an inline preview of the page here so we can see it while we review
     function editRecordForm($recordid, $ownerid)
     {
         global $wgOut;
@@ -111,6 +119,8 @@ EOT;
         $wgOut->addHTML($html);
     }
 
+    # Postback handler. Postback can be either an edit comment or a user
+    # impersonation request from a viewer
     function handlePostBack()
     {
         global $wgOut, $wgRequest;
@@ -143,6 +153,7 @@ EOT;
         }
     }
 
+    # Execute function. Dispatch the request to the proper handler function
     function execute($par) {
         global $wgOut, $wgScriptPath, $wgRequest;
 
@@ -151,7 +162,9 @@ EOT;
         if (!$this->validateUser()) {
             $html = <<<EOT
 <h2>Access Denied!</h2>
-<p>You must be logged in to view this page!</p>
+<p>
+    You must be logged in to view this page!
+</p>
 EOT;
             $wgOut->addHTML($html);
             return;
@@ -175,13 +188,14 @@ EOT;
         }
     }
 
+    # Show the basic main page
     function showMainPage() {
         global $wgRequest, $wgOut;
 
         if ($this->viewer) {
             $html = <<<EOT
 <form action="" method="POST">
-    <input type="hidden" name="postbackmode" value="impersonateuser">
+    <input type="hidden" name="postbackmode" value="impersonateuser"/>
     <b>Choose user to view: </b>
     <input type="text" name="username"/>
     <input type="submit" name="submit" value="View"/>
@@ -216,7 +230,7 @@ EOSQL;
             $deletelink = $this->linkArgs("delete/{$row->id}");
             $editlink = $this->linkArgs("edit/{$row->id}/{$row->user_id}");
             $givenReviews .= <<<EOT
-            <div class="myReviews-review-given">
+            <div class="PeerReview-MyReviews-given">
                 <p>
                     <span style='float: right; font-size: 80%'>
                         <a href="{$deletelink}">delete</a>
@@ -263,7 +277,7 @@ EOSQL;
             $pagelink = $namespace . $row->page_title;
             $pagehref = Title::newFromText($pagelink)->getFullURL();
             $takenReviews .= <<<EOT
-            <div class="myReviews-review-received">
+            <div class="PeerReview-MyReviews-received">
                 <p>{$extrainfo}<b>Page</b>: <a href="{$pagehref}">{$pagelink}</a></p>
                 <p><b>Score</b>: {$row->display_as}</p>
                 <p><b>Comment</b>: {$row->comment}</p>
@@ -275,11 +289,11 @@ EOT;
 <h2 style="clear:both;">{$this->username}'s Reviews</h2>
 <table style="width: 100%;" cellspacing="5" cellpadding="5">
     <tr>
-        <td style="width: 50%; border: 1px solid #000040; background: #F0F0FF;" valign="top">
-            <h3>Reviews given to {$this->username}</h3>
+        <td id="PeerReview-MyReviews-received-side" valign="top">
+            <h3>Reviews received by {$this->username}</h3>
             {$takenReviews}
         </td>
-        <td style="width: 50%; border: 1px solid #004000; background: #F0FFF0;" valign="top">
+        <td id="PeerReview-MyReviews-given-side" valign="top">
             <h3>Reviews given by {$this->username}</h3>
             {$givenReviews}
         </td>

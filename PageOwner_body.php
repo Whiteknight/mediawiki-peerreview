@@ -8,6 +8,8 @@ class PageOwner extends SpecialPage {
     protected $username = "";
     protected $userID = 0;
 
+    # To use this page the user must be logged in, and must have the
+    # "assignpage" permission
     function validateUser()
     {
         global $wgUser;
@@ -22,6 +24,7 @@ class PageOwner extends SpecialPage {
         }
     }
 
+    # Add a user as an owner for the specified page.
     function handleAddUser($pagename, $pageid, $username, $userid) {
         global $wgOut;
         if ($userid == 0) {
@@ -38,6 +41,7 @@ class PageOwner extends SpecialPage {
         return;
     }
 
+    # Remove a user as an owner of the specified page
     function handleRemoveUser($pagename, $pageid, $username, $userid) {
         global $wgOut;
         if ($userid == 0) {
@@ -53,6 +57,7 @@ class PageOwner extends SpecialPage {
         $wgOut->addHTML("Removed $username as an owner for $pagename");
     }
 
+    # We have a postback. It can be either an Add or a Remove of a user
     function handlePostBack() {
         global $wgRequest, $wgOut;
         $pagename = $wgRequest->getText('par_pagename');
@@ -71,7 +76,8 @@ class PageOwner extends SpecialPage {
         $wgOut->addHTML("<br><a href=\"$href\">Back</a>");
     }
 
-    function execute( $par ) {
+    # Execute function. Validate the user, then show whatever they need to see
+    function execute($par) {
         global $wgRequest, $wgOut;
 
         if (!$this->validateUser()) {
@@ -97,6 +103,7 @@ EOT;
         $this->showMainSpecialPage($par);
     }
 
+    # Display the main special page
     function showMainSpecialPage($par)
     {
         global $wgRequest, $wgOut;
