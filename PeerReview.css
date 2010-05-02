@@ -1,38 +1,56 @@
+/* PageReview interface */
 
-.info {
-    border: 1px solid #806000;
-    background: #FFE8D0;
-}
-.warning {
-    border: 1px solid #800000;
-    background: #FFE8E8;
-}
-.success {
-    border: 1px solid #008000;
-    background: #F0FFE8;
+#PeerReview-PageReviews-outerbox {
 }
 
-.review-box {
-    margin: 0px 0px 5px 5px;
-    padding: 2px;
-    width: 210px;
-}
-
-.reviewable-form-box {
+.PeerReview-PageReviews-outer {
     position: absolute;
     right: 0px;
     font-size: 80%;
 }
 
-#reviewable-main {
+#PeerReview-PageReviews-response {
+}
+
+.PeerReview-PageReviews-box {
+    margin: 0px 0px 5px 5px;
+    padding: 2px;
+    width: 210px;
+    border: 1px solid #806000;
+    background: #FFE8D0;
+}
+
+.PeerReview-PageReviews-success {
+    border: 1px solid #008000;
+    background: #F0FFE8;
+}
+
+.PeerReview-PageReviews-warning {
+    border: 1px solid #800000;
+    background: #FFE8E8;
+}
+
+#PeerReview-PageReviews-form {
     display: none;
 }
 
-
-
-#reviewable-comment {
+#PeerReview-PageReviews-comment {
     width: 500px;
     height: 250px;
+}
+
+/* PageOwner special page */
+
+#PeerReview-PageOwner-owners {
+    width: 50%;
+    border: 1px solid #000000;
+    background-color: #F8F8F8;
+}
+
+#PeerReview-PageOwner-new {
+    width: 50%;
+    border: 1px solid #000000;
+    background-color: #F8F8F8;
 }
 
 /* MyReviews special page */

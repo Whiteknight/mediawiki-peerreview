@@ -24,18 +24,23 @@ class PageReviews {
             || !is_numeric($wgRequest->getVal('reviewable-review'))
             || $wgUser->getID() == 0) {
 
-            $extraClass = "warning";
+            $extraClass = "PeerReview-PageReviews-warning";
             if($wgUser->getID() == 0) {
                 $response = <<<EOT
-    <h2>You must log in to give a review!</h2>
-    <p>Please log in by clicking on the &ldquo;log in / create account&rdquo; link at the
-        top-right of the page. Thank you.</p>
+<h2>You must log in to give a review!</h2>
+<p>
+    Please log in to leave a review on this page.
+</p>
 EOT;
             } else {
                 $response = <<<EOT
-    <h2>Could not add your review!</h2>
-    <p>You may have incorrectly filled out the review form. Please try again.</p>
-    <p>Remember, you must choose a score <strong>and</strong> write a comment!</p>
+<h2>Could not add your review!</h2>
+<p>
+    You may have incorrectly filled out the review form. Please try again.
+</p>
+<p>
+    Remember, you must choose a score <strong>and</strong> write a comment!
+</p>
 EOT;
             }
 
@@ -50,10 +55,12 @@ EOT;
             $dbr->freeResult($res);
             if($numRows != 1) {
                 // The incoming review score isn't in the database
-                $extraClass = "warning";
+                $extraClass = "PeerReview-PageReviews-warning";
                 $response = <<<EOT
-    <h2>Error!</h2>
-    <p>Your selected review score is invalid!</p>
+<h2>Error!</h2>
+<p>
+    Your selected review score is invalid!
+</p>
 EOT;
             } else {
                 // Good to go
@@ -66,16 +73,18 @@ EOT;
                     'comment' => $wgRequest->getVal('reviewable-comment'
                 ));
                 $dbw->insert('review', $toInsert);
-                $extraClass = "success";
+                $extraClass = "PeerReview-PageReviews-success";
                 $response = <<<EOT
-   <h2>Success!</h2>
-   <p>Your review has been added.</p>
+<h2>Success!</h2>
+<p>
+    Your review has been added.
+</p>
 EOT;
             }
         }
 
         $finalResponse = <<<EOT
-<div id="reviewable-response" class="review-box {$extraClass}">
+<div id="PeerReview-PageReviews-response" class="PeerReview-PageReviews-box {$extraClass}">
     <div style="padding-top:1em; float:right;">[<a href="#" id="reviewable-response-close">Close</a>]</div>
     {$response}
     <script type="text/javascript">
@@ -131,14 +140,14 @@ EOT;
         $numRows = $dbr->numRows($res);
 
         $buttonHtml = <<<EOT
-<div id="reviewable-big-box" class="reviewable-form-box review-box info">
+<div id="PeerReview-PageReviews-outerbox" class="PeerReview-PageReviews-outer PeerReview-PageReviews-box">
     <span style="float: right;">[<a id="reviewable-toggle" href="#">Post Review</a>]</span>
     <b>{$numRows}</b> reviews
-    <div id="reviewable-main">
+    <div id="PeerReview-PageReviews-form">
         <form action="{$url}" method="post">
             <input type="hidden" name="reviewable-hidden" value="go" />
             <p style="margin-bottom: 0em; font-weight: bold;">Comment:</p>
-            <textarea name="reviewable-comment" id="reviewable-comment"></textarea>
+            <textarea name="reviewable-comment" id="PeerReview-PageReviews-comment"></textarea>
             <b>Score:</b>
             <select name="reviewable-review">
                 <option value="-1">Select</option>
@@ -151,12 +160,12 @@ EOT;
         $('a#reviewable-toggle').click(function() {
             if($('a#reviewable-toggle').html() == "Hide") {
                 newText = "Post Review";
-                $('div#reviewable-big-box').width(210);
+                $('div#PeerReview-PageReviews-outerbox').width(210);
             } else {
                 newText = "Hide";
-                $('div#reviewable-big-box').width(510);
+                $('div#PeerReview-PageReviews-outerbox').width(510);
             }
-            $('div#reviewable-main').toggle();
+            $('div#PeerReview-PageReviews-form').toggle();
             $('a#reviewable-toggle').html(newText);
         });
     </script>

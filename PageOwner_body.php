@@ -153,7 +153,7 @@ EOT;
 </script>
 <table style="width: 100%;" cellspacing="5" cellpadding="5">
     <tr>
-        <td style="width: 50%; border: 1px solid #000000; background-color: #F8F8F8;" valign="top">
+        <td id="PeerReview-PageOwner-owners" valign="top">
             <h3>Current Page Owners</h3>
             <form name="removepeople" action="{$href}" method="POST">
                 {$currentowners}
@@ -161,7 +161,7 @@ EOT;
                 <input type="hidden" name="par_username" id="par_username" value=""/>
             </form>
         </td>
-        <td style="width: 50%; border: 1px solid #000000; background-color: #F8F8F8;" valign="top">
+        <td id="PeerReview-PageOwner-new" valign="top">
             <h3><a href="{$pagehref}">{$par}</a></h3>
             <hr>
             <h3>Add New Owners</h3>
