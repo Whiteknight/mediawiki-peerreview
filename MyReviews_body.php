@@ -228,14 +228,13 @@ EOSQL;
             $namespace = $this->getNamespaceNameFromId($namespaceId);
             $pagehref = Title::newFromText($namespace . $row->page_title)->getFullURL();
             $pagelink = $namespace . $row->page_title;
-            $deletelink = $this->linkArgs("delete/{$row->id}");
             $editlink = $this->linkArgs("edit/{$row->id}/{$row->user_id}");
             $comment = str_replace("\n", "<br>", $row->comment);
             $givenReviews .= <<<EOT
             <div class="PeerReview-MyReviews-given">
                 <p>
                     <span style='float: right; font-size: 80%'>
-                        <a href="{$deletelink}">delete</a>
+                        <a href="javascript: really_delete({$row->id});">delete</a>
                         &mdash;
                         <a href="{$editlink}">edit</a>
                     </span>
@@ -324,9 +323,17 @@ EOT;
         $givenReviews = $this->reviewsIGave();
         $takenReviews = $this->reviewsIReceive();
         $ownedpages = $this->ownedPages();
+        $baseurl = $this->linkArgs();
 
         # TODO: Show a list of all pages I own
         $html = <<<EOT
+<script type="text/javascript">
+    function really_delete(id) {
+        var url = "{$baseurl}/delete/" + id;
+        if(confirm("Really delete this review?"))
+            document.location = url;
+    }
+</script>
 <h2 style="clear:both;">{$this->username}'s Reviews</h2>
 <table style="width: 100%;" cellspacing="5" cellpadding="5">
     <tr>
