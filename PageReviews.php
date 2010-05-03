@@ -66,12 +66,15 @@ EOT;
                 // Good to go
                 $pageId = $wgArticle->getID();
                 $dbw = wfGetDB(DB_MASTER);
+                $comment = $wgRequest->getVal('reviewable-comment');
+                $comment = str_replace("<", "&lt;", $comment);
+                $comment = str_replace(">", "&gt;", $comment);
                 $toInsert = array(
                     'page_id' => $pageId,
                     'user_id' => $wgUser->getID(),
                     'review_score_id' => $wgRequest->getVal('reviewable-review'),
-                    'comment' => $wgRequest->getVal('reviewable-comment'
-                ));
+                    'comment' => $comment
+                );
                 $dbw->insert('review', $toInsert);
 
                 $extraClass = "PeerReview-PageReviews-success";
