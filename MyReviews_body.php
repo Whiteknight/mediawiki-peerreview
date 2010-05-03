@@ -230,6 +230,7 @@ EOSQL;
             $pagelink = $namespace . $row->page_title;
             $deletelink = $this->linkArgs("delete/{$row->id}");
             $editlink = $this->linkArgs("edit/{$row->id}/{$row->user_id}");
+            $comment = str_replace("\n", "<br>", $row->comment);
             $givenReviews .= <<<EOT
             <div class="PeerReview-MyReviews-given">
                 <p>
@@ -241,7 +242,7 @@ EOSQL;
                     <b>Page</b>: <a href="{$pagehref}">{$pagelink}</a>
                 </p>
                 <p><b>Score</b>: {$row->display_as}</p>
-                <p><b>Comment</b>: {$row->comment}</p>
+                <p><b>Comment</b>: {$comment}</p>
             </div>
 EOT;
         }
@@ -282,11 +283,12 @@ EOSQL;
             $namespace = $this->getNamespaceNameFromId($namespaceId);
             $pagelink = $namespace . $row->page_title;
             $pagehref = Title::newFromText($pagelink)->getFullURL();
+            $comment = str_replace("\n", "<br>", $row->comment);
             $takenReviews .= <<<EOT
             <div class="PeerReview-MyReviews-received">
                 <p>{$extrainfo}<b>Page</b>: <a href="{$pagehref}">{$pagelink}</a></p>
                 <p><b>Score</b>: {$row->display_as}</p>
-                <p><b>Comment</b>: {$row->comment}</p>
+                <p><b>Comment</b>: {$comment}</p>
             </div>
 EOT;
         }
