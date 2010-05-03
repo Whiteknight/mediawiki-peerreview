@@ -207,15 +207,15 @@ EOT;
     }
 
     # Reviews this user has given
-    function reviewsIGave($userid) {
-        $selectquery =<<<EOSQL
+    function reviewsIGave() {
+        $selectquery = <<<EOSQL
 SELECT
     review_score.display_as, page.page_namespace, page.page_title, review.*
     FROM
         review_score INNER JOIN (
             review INNER JOIN page ON review.page_id = page.page_id
         ) ON review.review_score_id = review_score.id
-    WHERE user_id = '{$userid}';
+    WHERE user_id = '{$this->userID}';
 EOSQL;
         $dbr = wfGetDB(DB_SLAVE);
         $given = $dbr->query($selectquery);
@@ -249,7 +249,7 @@ EOT;
     }
 
     # Reviews given to this user
-    function reviewsIReceive($userid) {
+    function reviewsIReceive() {
         # Explanation of this SQL: We want to get page/review information (along
         # with the displayable name of the review) for all pages that this user
         # owns
@@ -293,13 +293,35 @@ EOT;
         return $takenReviews;
     }
 
+    function ownedPages() {
+        $selectquery = <<<EOT
+SELECT
+    page.page_namespace, page.page_title
+    FROM page, page_owner
+    WHERE page_owner.user_id = '{$this->userID}'
+        AND page_owner.page_id = page.page_id
+EOT;
+        $dbr = wfGetDB(DB_SLAVE);
+        $pages = $dbr->query($selectquery);
+        $pagehtml = "";
+        while ($row = $dbr->fetchObject($pages)) {
+            $pagename = $this->getNamespaceNameFromId($row->page_namespace) . $row->page_title;
+            $page = Title::newFromText($pagename);
+            $pagehref = $page->getFullURL();
+            $talkhref = $page->getTalkPage()->getFullURL();
+            $pagehtml .= "<p><a href='$pagehref'>$pagename</a> (<a href='$talkhref'>Talk</a>)</p>";
+        }
+        return $pagehtml;
+    }
+
     # Show the basic main page
     function showMainPage() {
         global $wgRequest, $wgOut;
 
         $this->showViewerAdditions();
-        $givenReviews = $this->reviewsIGave($this->userID);
-        $takenReviews = $this->reviewsIReceive($this->userID);
+        $givenReviews = $this->reviewsIGave();
+        $takenReviews = $this->reviewsIReceive();
+        $ownedpages = $this->ownedPages();
 
         # TODO: Show a list of all pages I own
         $html = <<<EOT
@@ -313,6 +335,8 @@ EOT;
         <td id="PeerReview-MyReviews-given-side" valign="top">
             <h3>Reviews given by {$this->username}</h3>
             {$givenReviews}
+            <h3>Pages owned by {$this->username}</h3>
+            {$ownedpages}
         </td>
     </tr>
 </table>
