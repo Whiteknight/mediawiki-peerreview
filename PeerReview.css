@@ -80,3 +80,9 @@
     border: 1px solid #004000;
     background: #F0FFF0;
 }
+
+#PeerReview-MyReviews-owned-side {
+    width: 50%;
+    border: 1px solid #400000;
+    background: #FFF0F0;
+}

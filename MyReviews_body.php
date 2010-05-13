@@ -223,9 +223,6 @@ EOSQL;
         $dbr = wfGetDB(DB_SLAVE);
         $given = $dbr->query($selectquery);
         $givenReviews = "";
-        if($dbr->numRows($given) == 0) {
-            $givenReviews = "<p>No reviews</p>";
-        }
         while($row = $dbr->fetchObject($given)) {
             $namespaceId = $row->page_namespace;
             $namespace = $this->getNamespaceNameFromId($namespaceId);
@@ -273,9 +270,6 @@ EOSQL;
         $dbr = wfGetDB(DB_SLAVE);
         $taken = $dbr->query($selectquery);
         $takenReviews = "";
-        if($dbr->numRows($taken) == 0) {
-            $takenReviews = "<p>No reviews</p>";
-        }
         while($row = $dbr->fetchObject($taken)) {
             $extrainfo = "";
             if ($row->user_id == $this->userID) {
@@ -313,7 +307,11 @@ EOT;
             $page = Title::newFromText($pagename);
             $pagehref = $page->getFullURL();
             $talkhref = $page->getTalkPage()->getFullURL();
-            $pagehtml .= "<p><a href='$pagehref'>$pagename</a> (<a href='$talkhref'>Talk</a>)</p>";
+            $pagehtml .= <<<EOT
+            <div style="float: left; margin-right: 5em;">
+                <a href='$pagehref'>$pagename</a> (<a href='$talkhref'>Talk</a>)
+            </div>
+EOT;
         }
         return $pagehtml;
     }
@@ -339,15 +337,19 @@ EOT;
 </script>
 <table style="width: 100%;" cellspacing="5" cellpadding="5">
     <tr>
+        <td id="PeerReview-MyReviews-owned-side" valign="top" colspan="2">
+            <h3>Pages Owned</h3>
+            {$ownedpages}
+        </td>
+    </tr>
+    <tr>
         <td id="PeerReview-MyReviews-received-side" valign="top">
-            <h3>Reviews received by {$this->username}</h3>
+            <h3>Reviews Received</h3>
             {$takenReviews}
         </td>
         <td id="PeerReview-MyReviews-given-side" valign="top">
-            <h3>Reviews given by {$this->username}</h3>
+            <h3>Reviews Given</h3>
             {$givenReviews}
-            <h3>Pages owned by {$this->username}</h3>
-            {$ownedpages}
         </td>
     </tr>
 </table>
