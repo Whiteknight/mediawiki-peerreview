@@ -189,21 +189,23 @@ EOT;
         }
     }
 
-    function showViewerAdditions()
+    function showUsernameHeader($username)
     {
         global $wgOut;
         if ($this->viewer) {
             $html = <<<EOT
-<div style="float: right;">
-    <form action="" method="POST">
-        <input type="hidden" name="postbackmode" value="impersonateuser"/>
-        <b>Choose user to view: </b>
-        <input type="text" name="username"/>
+<form action="" method="POST">
+    <input type="hidden" name="postbackmode" value="impersonateuser"/>
+    <h2>
+        Reviews for
+        <input type="text" name="username" value="{$username}"/>
         <input type="submit" name="submit" value="View"/>
-    </form>
-</div>
+    </h2>
+</form>
 EOT;
             $wgOut->addHTML($html);
+        } else {
+            $wgOut->addHTML("<h2>Reviews for $username</h2>");
         }
     }
 
@@ -320,7 +322,7 @@ EOT;
     function showMainPage() {
         global $wgRequest, $wgOut;
 
-        $this->showViewerAdditions();
+        $this->showUsernameHeader($this->username);
         $givenReviews = $this->reviewsIGave();
         $takenReviews = $this->reviewsIReceive();
         $ownedpages = $this->ownedPages();
@@ -335,7 +337,6 @@ EOT;
             document.location = url;
     }
 </script>
-<h2 style="clear:both;">{$this->username}'s Reviews</h2>
 <table style="width: 100%;" cellspacing="5" cellpadding="5">
     <tr>
         <td id="PeerReview-MyReviews-received-side" valign="top">
