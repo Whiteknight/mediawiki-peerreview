@@ -238,10 +238,9 @@ EOSQL;
                         &mdash;
                         <a href="{$editlink}">edit</a>
                     </span>
-                    <b>Page</b>: <a href="{$pagehref}">{$pagelink}</a>
+                    <b><a href="{$pagehref}">{$pagelink}</a></b>
                 </p>
-                <p><b>Score</b>: {$row->display_as}</p>
-                <p><b>Comment</b>: {$comment}</p>
+                <p><b>{$row->display_as}</b>: {$comment}</p>
             </div>
 EOT;
         }
@@ -261,20 +260,18 @@ SELECT
             ON review.review_score_id = review_score.id
     ) INNER JOIN page
         ON review.page_id = page.page_id
-    WHERE review.page_id IN (
-        SELECT page_id
-            FROM page_owner
-            WHERE user_id = '{$this->userID}'
-    );
+    WHERE
+        review.page_id IN (
+            SELECT page_id
+                FROM page_owner
+                WHERE user_id = '{$this->userID}'
+        )
+        AND review.user_id != '{$this->userID}';
 EOSQL;
         $dbr = wfGetDB(DB_SLAVE);
         $taken = $dbr->query($selectquery);
         $takenReviews = "";
         while($row = $dbr->fetchObject($taken)) {
-            $extrainfo = "";
-            if ($row->user_id == $this->userID) {
-                $extrainfo = "<span style='float: right; font-size: 80%'>(Self)</span>";
-            }
             $namespaceId = $row->page_namespace;
             $namespace = $this->getNamespaceNameFromId($namespaceId);
             $pagelink = $namespace . $row->page_title;
@@ -282,9 +279,8 @@ EOSQL;
             $comment = str_replace("\n", "<br>", $row->comment);
             $takenReviews .= <<<EOT
             <div class="PeerReview-MyReviews-received">
-                <p>{$extrainfo}<b>Page</b>: <a href="{$pagehref}">{$pagelink}</a></p>
-                <p><b>Score</b>: {$row->display_as}</p>
-                <p><b>Comment</b>: {$comment}</p>
+                <p><b><a href="{$pagehref}">{$pagelink}</a></b></p>
+                <p><b>{$row->display_as}</b>: {$comment}</p>
             </div>
 EOT;
         }
