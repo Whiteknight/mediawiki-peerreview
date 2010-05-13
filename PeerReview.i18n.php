@@ -11,13 +11,6 @@ $messages['en'] = array(
     'peerreview-useradded'    => 'Added [[User:$1|$1]] as an owner for [[$2]]',
     'peerreview-userremoved'  => 'Removed [[User:$1|$1]] as an owner for [[$2]]',
     'peerreview-back'         => 'Back',
-    'peerreview-denied'       => 'Access Denied',
-    'peerreview-deniedmsg'    => <<<EOT
-You must be logged in and have assigner permissions to access this
-page. Please contact a site administrator if you think you should have
-this right.
-EOT
-    ,
     'peerreview-errnopage'    => 'Error: No page specified',
     'peerreview-errpageexist' => "Error: Page '$1' does not exist",
     'peerreview-remove'       => 'Remove',

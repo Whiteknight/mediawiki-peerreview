@@ -1,7 +1,7 @@
 <?php
 class PageOwner extends SpecialPage {
     function __construct() {
-        parent::__construct('PageOwner');
+        parent::__construct('PageOwner', 'assignpage');
         wfLoadExtensionMessages('PeerReview');
     }
 
@@ -13,15 +13,13 @@ class PageOwner extends SpecialPage {
     function validateUser()
     {
         global $wgUser;
-
-        $this->userName = "";
-        $this->userID = $wgUser->getID();
-        if($this->userID != 0 && $wgUser->isAllowed("assignpage")) {
-            $this->userName = $wgUser->getName();
-            return true;
-        } else {
+        if (!$this->userCanExecute($wgUser)) {
+            $this->displayRestrictionError();
             return false;
         }
+        $this->userName = $wgUser->getName();
+        $this->userID = $wgUser->getID();
+        return true;
     }
 
     # Add a user as an owner for the specified page.
@@ -86,12 +84,8 @@ class PageOwner extends SpecialPage {
     function execute($par) {
         global $wgRequest, $wgOut;
 
-        if (!$this->validateUser()) {
-            $wgOut->wrapWikiMsg("<h2>$1</h2>", array('peerreview-denied'));
-            $wgOut->wrapWikiMsg("<p>$1</p>", array('peerreview-deniedmsg'));
-            $wgOut->addHTML($html);
+        if (!$this->validateUser())
             return;
-        }
         if ($wgRequest->wasPosted()) {
             $this->handlePostBack();
             return;
