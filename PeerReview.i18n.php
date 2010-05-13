@@ -20,10 +20,17 @@ $messages['en'] = array(
     'peerreview-newowners'    => 'Add New Owners',
     'peerreview-add'          => 'Add',
     'peerreview-commentdelete' => 'Comment deleted.',
+    'peerreview-commentsaved' => 'Your comment has been successfully updated.',
     'peerreview-errowncomment' => 'You cannot edit review $1 because you did not create it.',
     'peerreview-comment'      => 'Comment',
     'peerreview-score'        => 'Score',
     'peerreview-cancel'       => 'Cancel',
     'peerreview-save'         => 'Save',
+    'peerreview-delete'       => 'Delete',
+    'peerreview-edit'         => 'Edit',
+    'peerreview-reallydelete' => 'Really delete this review?',
+    'peerreview-pagesowned'   => 'Pages Owned',
+    'peerreview-reviewsgiven' => 'Reviews Given',
+    'peerreview-reviewstaken' => 'Reviews Received',
 
 );

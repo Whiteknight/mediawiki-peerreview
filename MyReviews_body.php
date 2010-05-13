@@ -1,7 +1,7 @@
 <?php
 class MyReviews extends SpecialPage {
     function __construct() {
-        parent::__construct('MyReviews');
+        parent::__construct('MyReviews', 'autoconfirmed');
         wfLoadExtensionMessages('PeerReview');
     }
 
@@ -13,16 +13,14 @@ class MyReviews extends SpecialPage {
     function validateUser()
     {
         global $wgUser;
-
-        $this->userName = "";
-        $this->userID = $wgUser->getID();
-        if($this->userID == 0) {
+        if (!$this->userCanExecute($wgUser)) {
+            $this->displayRestrictionError();
             return false;
-        } else {
-            $this->username = $wgUser->getName();
-            $this->viewer = $wgUser->isAllowed('viewreviews');
-            return true;
         }
+        $this->username = $wgUser->getName();
+        $this->userID = $wgUser->getID();
+        $this->viewer = $wgUser->isAllowed('viewreviews');
+        return true;
     }
 
     # Given a namespace ID value, convert it to a textual representation suitable
@@ -58,13 +56,7 @@ class MyReviews extends SpecialPage {
         $back = $this->linkArgs();
         $msgDeleted = wfMsg('peerreview-commentdelete');
         $msgBack = wfMsg('peerreview-back');
-        $html = <<<EOT
-<p>
-    {$msgDeleted}<br>
-    <a href="$back">{$msgBack}</a>
-</p>
-EOT;
-        $wgOut->addHTML($html);
+        $wgOut->addHTML("<p>{$msgDeleted}</p><a href=\"$back\">{$msgBack}</a>");
     }
 
     # Show an edit form to edit an existing comment
@@ -135,14 +127,9 @@ EOT;
                 __METHOD__
             );
             $href = $this->linkArgs();
-            $html = <<<EOT
-<h2>Comment Updated</h2>
-<p>
-    Your comment has been successfully updated!
-</p>
-<a href="$href">Back</a>
-EOT;
-            $wgOut->addHTML($html);
+            $msgBack = wfMsg('peerreview-back');
+            $msgSaved = wfMsg('peerreview-commentsaved');
+            $wgOut->addHTML("<p>$msgSaved</p><a href=\"$href\">$msgBack</a>");;
         }
         else if ($postbackmode == "impersonateuser") {
             $this->username = $wgRequest->getText("username");
@@ -156,17 +143,8 @@ EOT;
         global $wgOut, $wgScriptPath, $wgRequest;
 
         $this->setHeaders();
-        $wgOut->setPageTitle("My Reviews");
-        if (!$this->validateUser()) {
-            $html = <<<EOT
-<h2>Access Denied!</h2>
-<p>
-    You must be logged in to view this page!
-</p>
-EOT;
-            $wgOut->addHTML($html);
+        if (!$this->validateUser())
             return;
-        }
         if ($wgRequest->wasPosted()) {
             $this->handlePostBack();
             return;
@@ -220,6 +198,8 @@ EOSQL;
         $dbr = wfGetDB(DB_SLAVE);
         $given = $dbr->query($selectquery);
         $givenReviews = "";
+        $msgEdit = wfMsg('peerreview-edit');
+        $msgDelete = wfMsg('peerreview-delete');
         while($row = $dbr->fetchObject($given)) {
             $namespaceId = $row->page_namespace;
             $namespace = $this->getNamespaceNameFromId($namespaceId);
@@ -231,9 +211,9 @@ EOSQL;
             <div class="PeerReview-MyReviews-given">
                 <p>
                     <span style='float: right; font-size: 80%'>
-                        <a href="javascript: really_delete({$row->id});">delete</a>
+                        [<a href="javascript: really_delete({$row->id});">{$msgDelete}</a>
                         &mdash;
-                        <a href="{$editlink}">edit</a>
+                        <a href="{$editlink}">{$msgEdit}</a>]
                     </span>
                     <b><a href="{$pagehref}">{$pagelink}</a></b>
                 </p>
@@ -318,30 +298,32 @@ EOT;
         $takenReviews = $this->reviewsIReceive();
         $ownedpages = $this->ownedPages();
         $baseurl = $this->linkArgs();
-
-        # TODO: Show a list of all pages I own
+        $msgReally = wfMsg('peerreview-reallydelete');
+        $msgOwned = wfMsg('peerreview-pagesowned');
+        $msgGiven = wfMsg('peerreview-reviewsgiven');
+        $msgTaken = wfMsg('peerreview-reviewstaken');
         $html = <<<EOT
 <script type="text/javascript">
     function really_delete(id) {
         var url = "{$baseurl}/delete/" + id;
-        if(confirm("Really delete this review?"))
+        if(confirm("R{$msgReally}"))
             document.location = url;
     }
 </script>
 <table style="width: 100%;" cellspacing="5" cellpadding="5">
     <tr>
         <td id="PeerReview-MyReviews-owned-side" valign="top" colspan="2">
-            <h3>Pages Owned</h3>
+            <h3>{$msgOwned}</h3>
             {$ownedpages}
         </td>
     </tr>
     <tr>
         <td id="PeerReview-MyReviews-received-side" valign="top">
-            <h3>Reviews Received</h3>
+            <h3>{$msgTaken}</h3>
             {$takenReviews}
         </td>
         <td id="PeerReview-MyReviews-given-side" valign="top">
-            <h3>Reviews Given</h3>
+            <h3>{$msgGiven}</h3>
             {$givenReviews}
         </td>
     </tr>
