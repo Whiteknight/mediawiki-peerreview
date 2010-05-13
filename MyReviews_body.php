@@ -2,7 +2,7 @@
 class MyReviews extends SpecialPage {
     function __construct() {
         parent::__construct('MyReviews');
-        wfLoadExtensionMessages('MyReviews');
+        wfLoadExtensionMessages('PeerReview');
     }
 
     protected $username = "";
@@ -48,6 +48,7 @@ class MyReviews extends SpecialPage {
             $title .= "/" . $args;
         return Title::newFromText($title)->getFullURL();
     }
+
 
     # Delete a comment
     function deleteRecord($recordid)

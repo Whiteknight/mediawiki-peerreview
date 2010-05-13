@@ -12,15 +12,15 @@ EOT;
 
 include_once( "{$dir}PageReviews.php" );
 
+$wgExtensionMessagesFiles['PeerReview'] = $dir . 'PeerReview.i18n.php';
+
 # Setup the PageOwner special page
 $wgAutoloadClasses['PageOwner'] = $dir . 'PageOwner_body.php';
-$wgExtensionMessagesFiles['PageOwner'] = $dir . 'PageOwner.i18n.php';
 $wgExtensionAliasesFiles['PageOwner'] = $dir . 'PageOwner.alias.php';
 $wgSpecialPages['PageOwner'] = 'PageOwner';
 
 # Setup the MyReviews special page
 $wgAutoloadClasses['MyReviews'] = $dir . 'MyReviews_body.php';
-$wgExtensionMessagesFiles['MyReviews'] = $dir . 'MyReviews.i18n.php';
 $wgExtensionAliasesFiles['MyReviews'] = $dir . 'MyReviews.alias.php';
 $wgSpecialPages['MyReviews'] = 'MyReviews';
 

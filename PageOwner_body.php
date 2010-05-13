@@ -1,8 +1,8 @@
 <?php
 class PageOwner extends SpecialPage {
     function __construct() {
-        parent::__construct( 'PageOwner' );
-        wfLoadExtensionMessages('PageOwner');
+        parent::__construct('PageOwner');
+        wfLoadExtensionMessages('PeerReview');
     }
 
     protected $username = "";
@@ -28,7 +28,7 @@ class PageOwner extends SpecialPage {
     function handleAddUser($pagename, $pageid, $username, $userid) {
         global $wgOut;
         if ($userid == 0) {
-            $wgOut->addHTML("User $username doesn't exist");
+            $wgOut->addWikiMsg('peerreview-usernotexist', array($username));
             return;
         }
         $toinsert = array(
@@ -37,7 +37,7 @@ class PageOwner extends SpecialPage {
         );
         $dbw = wfGetDB(DB_MASTER);
         $dbw->insert('page_owner', $toinsert);
-        $wgOut->addHTML("Added $username as an owner for $pagename");
+        $wgOut->addWikiMsg('peerreview-useradded', $username, $pagename);
         return;
     }
 
@@ -45,7 +45,7 @@ class PageOwner extends SpecialPage {
     function handleRemoveUser($pagename, $pageid, $username, $userid) {
         global $wgOut;
         if ($userid == 0) {
-            $wgOut->addHTML("User $username doesn't exist");
+            $wgOut->addWikiMsg('peerreview-usernotexist', array($username));
             return;
         }
         $todelete = array(
@@ -54,7 +54,7 @@ class PageOwner extends SpecialPage {
         );
         $dbw = wfGetDB(DB_MASTER);
         $dbw->delete('page_owner', $todelete);
-        $wgOut->addHTML("Removed $username as an owner for $pagename");
+        $wgOut->addWikiMsg('peerreview-userremoved', $username, $pagename);
     }
 
     # We have a postback. It can be either an Add or a Remove of a user
@@ -78,7 +78,8 @@ class PageOwner extends SpecialPage {
             }
         }
         $href = Title::newFromText("Special:PageOwner/$pagename")->getFullURL();
-        $wgOut->addHTML("<br><a href=\"$href\">Back</a>");
+        $back = wfMsg('peerreview-back');
+        $wgOut->addHTML("<br><a href=\"$href\">$back</a>");
     }
 
     # Execute function. Validate the user, then show whatever they need to see
@@ -86,14 +87,8 @@ class PageOwner extends SpecialPage {
         global $wgRequest, $wgOut;
 
         if (!$this->validateUser()) {
-            $html = <<<EOT
-<h2>Access Denied!</h2>
-<p>
-    You must be logged in and have assigner permissions to access this
-    page. Please contact a site administrator if you think you should have
-    this right.
-</p>
-EOT;
+            $wgOut->wrapWikiMsg("<h2>$1</h2>", array('peerreview-denied'));
+            $wgOut->wrapWikiMsg("<p>$1</p>", array('peerreview-deniedmsg'));
             $wgOut->addHTML($html);
             return;
         }
@@ -102,7 +97,7 @@ EOT;
             return;
         }
         if (!isset($par)) {
-            $wgOut->addHTML("<p>Error: No page specified</p>");
+            $wgOut->wrapWikiMsg("<p>$1</p>", array('peerreview-errnopage'));
             return;
         }
         $this->showMainSpecialPage($par);
@@ -115,7 +110,7 @@ EOT;
 
         $pageid = Title::newFromText($par)->getArticleId();
         if ($pageid == 0) {
-            $wgOut->addHTML("<p>Error: Page '$par' does not exist</p>");
+            $wgOut->wrapWikiMsg("<p>$1</p>", array('peerreview-errpageexist', $par));
             return;
         }
         $dbr = wfGetDB(DB_SLAVE);
@@ -128,9 +123,9 @@ EOSQL;
         $given = $dbr->query($selectquery);
 
         $currentowners = "";
-        if($dbr->numRows($given) == 0) {
-            $currentowners = "<p>No owners</p>";
-        }
+        $msgRemove = wfMsg('peerreview-remove');
+        $msgTalk = wfMsg('peerreview-talk');
+        $msgAssign = wfMsg('peerreview-assign');
         while($row = $dbr->fetchObject($given)) {
             $username = $row->user_name;
             $userpage = Title::newFromText("User:$username");
@@ -138,9 +133,9 @@ EOSQL;
             $talkhref = $userpage->getTalkPage()->getFullURL();
             $currentowners .= <<<EOT
 <p>
-    [<a href="javascript: removeuser('$username')" style="font-size: 80%;">Remove</a>]
+    [<a href="javascript: removeuser('$username')" style="font-size: 80%;">$msgRemove</a>]
     &mdash;
-    <a href="$userhref">$username</a> (<a href="$talkhref">Talk</a>)
+    <a href="$userhref">$username</a> (<a href="$talkhref">$msgTalk</a>)
 </p>
 EOT;
         }
@@ -172,10 +167,10 @@ EOSQL;
             $userhref = $userpage->getFullURL();
             $talkhref = $userpage->getTalkPage()->getFullURL();
             $possibleowners .= <<<EOT
- <p>
-    [<a href="javascript: assignimplicituser('{$username}')" style="font-size: 80%;">Assign</a>]
+<p>
+    [<a href="javascript: assignimplicituser('{$username}')" style="font-size: 80%;">{$msgAssign}</a>]
     &mdash;
-    <a href="{$userhref}">{$username}</a> (<a href="{$talkhref}">Talk</a>)<br/>
+    <a href="{$userhref}">{$username}</a> (<a href="{$talkhref}">{$msgTalk}</a>)
 </p>
 EOT;
         }
@@ -183,6 +178,9 @@ EOT;
         $href = Title::newFromText("Special:PageOwner")->getFullURL();
         $pagehref = Title::newFromText($par)->getFullURL();
         $this->setHeaders();
+        $msgOwners = wfMsg('peerreview-currentowners');
+        $msgAdd = wfMsg('peerreview-add');
+        $msgNew = wfMsg('peerreview-newowners');
         $html = <<<EOT
 <script type="text/javascript">
     function removeuser(user) {
@@ -204,7 +202,7 @@ EOT;
 <table style="width: 100%;" cellspacing="5" cellpadding="5">
     <tr>
         <td id="PeerReview-PageOwner-owners" valign="top">
-            <h3>Current Page Owners</h3>
+            <h3>{$msgOwners}</h3>
             <form name="changepeople" action="{$href}" method="POST">
                 {$currentowners}
                 <input type="hidden" name="par_method" id="par_method" value="remove">
@@ -215,11 +213,11 @@ EOT;
         <td id="PeerReview-PageOwner-new" valign="top">
             <h3><a href="{$pagehref}">{$par}</a></h3>
             <hr>
-            <h3>Add New Owners</h3>
+            <h3>{$msgNew}</h3>
             <form action="$href" method="POST">
-                New owner: <input type="textbox" name="newowner" id="par_newowner"/>
+                <input type="textbox" name="newowner" id="par_newowner"/>
                 <input type="hidden" name="par_pagename" value="{$par}"/>
-                <input type="submit" name="submit" value="Add"/>
+                <input type="submit" name="submit" value="{$msgAdd}"/>
                 {$possibleowners}
             </form>
         </td>
