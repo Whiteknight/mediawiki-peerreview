@@ -41,14 +41,10 @@ class MyReviews extends SpecialPage {
     }
 
     # Create a URL link to this special page, optionally with some arguments
-    function linkArgs($args = "")
+    function linkArgs($args = false)
     {
-        $title = "Special:MyReviews";
-        if ($args != "")
-            $title .= "/" . $args;
-        return Title::newFromText($title)->getFullURL();
+        return $this->getTitle($args)->getFullURL();
     }
-
 
     # Delete a comment
     function deleteRecord($recordid)
@@ -60,10 +56,12 @@ class MyReviews extends SpecialPage {
         $dbw = wfGetDB(DB_MASTER);
         $dbw->delete('review', $todelete);
         $back = $this->linkArgs();
+        $msgDeleted = wfMsg('peerreview-commentdelete');
+        $msgBack = wfMsg('peerreview-back');
         $html = <<<EOT
 <p>
-    Comment deleted.<br>
-    <a href="$back">Back</a>
+    {$msgDeleted}<br>
+    <a href="$back">{$msgBack}</a>
 </p>
 EOT;
         $wgOut->addHTML($html);
@@ -76,13 +74,7 @@ EOT;
     {
         global $wgOut;
         if ($this->userID != $ownerid) {
-            $html = <<<EOT
-<h2>Access Denied!</h2>
-<p>
-    You cannot edit review {$recordid} because you did not create it
-</p>
-EOT;
-            $wgOut->addHTML($html);
+            $wgOut->wrapWikiMsg('<p>$1</p>', array('peerreview-errowncomment', $recordid));
             return;
         }
         $dbr = wfGetDB(DB_SLAVE);
@@ -103,18 +95,22 @@ EOT;
         }
         $dbr->freeResult($res);
         $href = $this->linkArgs();
+        $msgComment = wfMsg('peerreview-comment');
+        $msgScore = wfMsg('peerreview-score');
+        $msgCancel = wfMsg('peerreview-cancel');
+        $msgSave = wfMsg('peerreview-save');
         $html = <<<EOT
 <form action="$href" method="POST">
     <input type="hidden" name="postbackmode" value="editcomment"/>
     <input type="hidden" name="recordid" value="{$recordid}"/>
     <input type="hidden" name="ownerid" value="{$ownerid}"/>
-    <p><b>Comment:</b></p>
+    <p><b>{$msgComment}:</b></p>
     <textarea name="commenttext" style="height: 250px;">$comment</textarea>
-    <b>Score:</b> <select name="commentscore">
+    <b>{$msgScore}:</b> <select name="commentscore">
         $optionString
     </select>
-    <input type="submit" name="submitsave" value="Save">
-    <a href="$href">Cancel</a>
+    <input type="submit" name="submitsave" value="{$msgSave}">
+    <a href="$href">{$msgCancel}</a>
 </form>
 EOT;
         $wgOut->addHTML($html);
@@ -133,10 +129,11 @@ EOT;
             $score = $wgRequest->getVal("commentscore");
             $text = $wgRequest->getVal("commenttext");
             $dbr = wfGetDB(DB_MASTER);
-            $text = $dbr->addQuotes($text);
-            $score = $dbr->addQuotes($score);
-            // TODO: How to sanitize SQL input?
-            $dbr->query("UPDATE review SET comment=$text, review_score_id=$score WHERE id='$recordid'");
+            $dbr->update('review',
+                array('comment' => $text, "review_score_id" => $score),
+                array('id' => $recordid),
+                __METHOD__
+            );
             $href = $this->linkArgs();
             $html = <<<EOT
 <h2>Comment Updated</h2>
