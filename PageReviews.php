@@ -99,6 +99,20 @@ EOT;
         $wgOut->addHTML($finalResponse);
     }
 
+    function notReviewable() {
+        global $wgArticle;
+        global $wgUser;
+
+        // Make sure this is even a reviewability situation
+        // $namespace = $wgArticle->getTitle()->getNamespace();
+        if(empty($wgArticle)
+            || !$wgArticle->exists()
+            || $wgArticle->getTitle()->isTalkPage()
+            || $wgUser->getID() == 0) {
+            return true;
+        }
+    }
+
     /**
      * Adds a form to make a page reviewable if it is in the correct namespace, and is already not reviewable.
      * Does not use the incoming parameters.
@@ -110,14 +124,8 @@ EOT;
         global $wgArticle;
         global $wgOut;
 
-        // Make sure this is even a reviewability situation
-        // $namespace = $wgArticle->getTitle()->getNamespace();
-        if(empty($wgArticle)
-            || !$wgArticle->exists()
-            || $wgArticle->getTitle()->isTalkPage()
-            || $wgUser->getID() == 0) {
+        if (PageReviews::notReviewable())
             return true;
-        }
 
         // Handle the POST if necessary
         if($wgRequest->getVal('reviewable-hidden') == 'go') {
