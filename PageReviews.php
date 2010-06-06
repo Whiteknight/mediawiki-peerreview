@@ -99,7 +99,8 @@ EOT;
         $wgOut->addHTML($finalResponse);
     }
 
-    function notReviewable() {
+    #
+    function reviewable() {
         global $wgArticle;
         global $wgUser;
 
@@ -109,7 +110,7 @@ EOT;
             || !$wgArticle->exists()
             || $wgArticle->getTitle()->isTalkPage()
             || $wgUser->getID() == 0) {
-            return true;
+            return false;
         }
 
         # If we allow reviews on ownerless pages, this page is reviewable at
@@ -117,11 +118,11 @@ EOT;
         # owners.
         global $wgPeerReviewReviewOwnerlessPages;
         if ($wgPeerReviewReviewOwnerlessPages)
-            return false;
+            return true;
         $dbr = wfGetDB(DB_SLAVE);
         $res = $dbr->select('page_owner', array('id', 'page_id'), array("page_id" => $wgArticle->getID()));
         $count = $dbr->numRows($res);
-        return ($count == 0);
+        return ($count != 0);
     }
 
     /**
@@ -135,7 +136,7 @@ EOT;
         global $wgArticle;
         global $wgOut;
 
-        if (PageReviews::notReviewable())
+        if (!PageReviews::reviewable())
             return true;
 
         // Handle the POST if necessary
