@@ -10,8 +10,10 @@ EOT;
     exit( 1 );
 }
 
-include_once( "{$dir}PageReviews.php" );
-
+# Startup hook
+$wgHooks['OutputPageParserOutput'][] = array('PageReviews::addReviewForm');
+#$wgHooks['ArticleViewHeader'][] = 'PageReviews::addReviewForm';
+$wgAutoloadClasses['PageReviews'] = $dir . "PageReviews.php";
 $wgExtensionMessagesFiles['PeerReview'] = $dir . 'PeerReview.i18n.php';
 
 # Setup the PageOwner special page
@@ -42,6 +44,8 @@ function PeerReview_Setup() {
 function PeerReview_addJSAndCSS() {
     global $wgOut, $wgUser, $wgScriptPath;
     $skin = $wgUser->getSkin()->getSkinName();
+    if ($skin == "")
+        $skin = "monobook";
     $wgOut->addLink(array(
         'rel' => 'stylesheet',
         'type' => 'text/css',

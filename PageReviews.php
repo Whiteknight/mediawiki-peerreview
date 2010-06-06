@@ -4,10 +4,8 @@
  * @author Jason Grafinger
  */
 
-# Startup hook
-$wgHooks['OutputPageParserOutput'][] = array('PageReviews::addReviewForm');
-
 class PageReviews {
+
     function handlePostBack() {
         global $wgRequest;
         global $wgUser;
@@ -104,14 +102,13 @@ EOT;
     /**
      * Adds a form to make a page reviewable if it is in the correct namespace, and is already not reviewable.
      * Does not use the incoming parameters.
-     * @param $out
-     * @param $parseroutput
      */
-    function addReviewForm(&$out, &$parseroutput) {
+    function addReviewForm() {
         global $wgRequest;
         global $wgUser;
         global $wgTitle;
         global $wgArticle;
+        global $wgOut;
 
         // Make sure this is even a reviewability situation
         // $namespace = $wgArticle->getTitle()->getNamespace();
@@ -175,8 +172,9 @@ EOT;
     </script>
 </div>
 EOT;
-        $out->addHTML($buttonHtml);
+        $wgOut->addHTML($buttonHtml);
         return true;
     }
 }
 ?>
+
