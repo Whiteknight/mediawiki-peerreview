@@ -111,6 +111,17 @@ EOT;
             || $wgUser->getID() == 0) {
             return true;
         }
+
+        # If we allow reviews on ownerless pages, this page is reviewable at
+        # this point no matter what. Otherwise, we check if the page has
+        # owners.
+        global $wgPeerReviewReviewOwnerlessPages;
+        if ($wgPeerReviewReviewOwnerlessPages)
+            return false;
+        $dbr = wfGetDB(DB_SLAVE);
+        $res = $dbr->select('page_owner', array('id', 'page_id'), array("page_id" => $wgArticle->getID()));
+        $count = $dbr->numRows($res);
+        return ($count == 0);
     }
 
     /**

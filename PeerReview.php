@@ -10,6 +10,9 @@ EOT;
     exit( 1 );
 }
 
+# Configurable Variables
+$wgPeerReviewReviewOwnerlessPages = false; # Allow reviews on pages with no owners
+
 # Startup hook
 $wgHooks['OutputPageParserOutput'][] = array('PageReviews::addReviewForm');
 #$wgHooks['ArticleViewHeader'][] = 'PageReviews::addReviewForm';
