@@ -1,3 +1,5 @@
+DELETE FROM review_score;
+
 INSERT INTO review_score (id, display_as, value)
 VALUES (1, 'A', 11);
 
