@@ -1,7 +1,8 @@
 <?php
 $dir = dirname(__FILE__) . '/';
 
-# Alert the user that this is not a valid entry point to MediaWiki if they try to access the special pages file directly.
+# Alert the user that this is not a valid entry point to MediaWiki if they try
+# to access the special pages file directly.
 if (!defined('MEDIAWIKI')) {
     echo <<<EOT
 To install my extension, put the following line in LocalSettings.php:
@@ -12,6 +13,7 @@ EOT;
 
 # Configurable Variables
 $wgPeerReviewReviewOwnerlessPages = false; # Allow reviews on pages with no owners
+$wgPeerReviewSeeReviewers = false;         # Allow to see the user who left the review
 
 # Startup hook
 $wgHooks['OutputPageParserOutput'][] = array('PageReviews::addReviewForm');

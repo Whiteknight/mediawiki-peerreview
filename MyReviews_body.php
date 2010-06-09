@@ -164,6 +164,8 @@ EOT;
         }
     }
 
+    # Show the header of the page. If the user is able to impersonate,
+    # give them a form to change the username to view
     function showUsernameHeader($username)
     {
         global $wgOut;
@@ -226,6 +228,8 @@ EOT;
 
     # Reviews given to this user
     function reviewsIReceive() {
+        global $wgPeerReviewSeeReviewers;
+
         # Explanation of this SQL: We want to get page/review information (along
         # with the displayable name of the review) for all pages that this user
         # owns
@@ -248,15 +252,32 @@ EOSQL;
         $dbr = wfGetDB(DB_SLAVE);
         $taken = $dbr->query($selectquery);
         $takenReviews = "";
+        $msgTalk = wfMsg('peerreview-talk');
         while($row = $dbr->fetchObject($taken)) {
             $namespaceId = $row->page_namespace;
             $namespace = $this->getNamespaceNameFromId($namespaceId);
             $pagelink = $namespace . $row->page_title;
             $pagehref = Title::newFromText($pagelink)->getFullURL();
             $comment = str_replace("\n", "<br>", $row->comment);
+            $reviewer = "";
+            if ($wgPeerReviewSeeReviewers) {
+                $reviewuser = User::newFromId($row->user_id);
+                $username = $reviewuser->getName();
+                $userpage = $reviewuser->getUserPage();
+                $userhref = $userpage->getFullURL();
+                $talkhref = $userpage->getTalkPage()->getFullURL();
+                $reviewer = <<<EOR
+                <p style="margin-left: 2em;">
+                    &mdash;
+                    <a href="{$userhref}">{$username}</a>
+                    (<a href="{$talkhref}">{$msgTalk}</a>)
+                </p>
+EOR;
+            }
             $takenReviews .= <<<EOT
             <div class="PeerReview-MyReviews-received">
                 <p><b><a href="{$pagehref}">{$pagelink}</a></b></p>
+                {$reviewer}
                 <p><b>{$row->display_as}</b>: {$comment}</p>
             </div>
 EOT;
