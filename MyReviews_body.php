@@ -327,7 +327,7 @@ EOT;
 <script type="text/javascript">
     function really_delete(id) {
         var url = "{$baseurl}/delete/" + id;
-        if(confirm("R{$msgReally}"))
+        if(confirm("{$msgReally}"))
             document.location = url;
     }
 </script>
